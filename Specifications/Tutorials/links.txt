@@ -1,0 +1,5 @@
+https://github.com/mrlnc/HelloSTK2
+
+https://osmocom.org/projects/cellular-infrastructure/wiki/HelloSTK
+
+https://anon.inf.tu-dresden.de/svn/JavaCardStudents/ANONCard/trunk/java_card_kit-2_2_2/jc_specification/specs/api/html/javacard/framework/Applet.html
