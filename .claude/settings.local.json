@@ -4,5 +4,27 @@
       "Bash(Get-ChildItem -Recurse -Depth 3 -Name)",
       "Bash(Select-Object -First 100)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit(wiki/**)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[lint reminder] run /lint on wiki changes\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write(wiki/**)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[lint reminder] run /lint on wiki changes\""
+          }
+        ]
+      }
+    ]
   }
 }
