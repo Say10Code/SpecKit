@@ -1,0 +1,25 @@
+# ── 3gpp-crawler: кэш + исходники ──────────────────────────────────
+# Кэш spec-crawler (БД + HTTP-кэш + workspace artifacts — ~50 MB)
+.3gpp-crawler/
+# Исходники 3gpp-crawler (имеют свой .git/ — избегаем submodule conflict)
+3gpp-crawler/
+
+# ── Сгенерированные данные ──────────────────────────────────────────
+# Извлечённые тексты спецификаций (205 MB — перегенерируются SpecExtractor'ом)
+specs-extracted/
+# Сгенерированные HTML-отчёты (Formatter output)
+outputs/*.html
+
+# ── Obsidian: волатильные/бинарные файлы ───────────────────────────
+.obsidian/workspace.json
+.obsidian/plugins/
+.trash/
+
+# ── Claude Code: сессионные данные ─────────────────────────────────
+.claudian/
+
+# ── Temp и мусор ────────────────────────────────────────────────────
+raw/
+__pycache__/
+*.pyc
+.venv/

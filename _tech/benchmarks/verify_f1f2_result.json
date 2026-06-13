@@ -1,0 +1,30 @@
+{
+  "file": "D:\\ObsidianDB\\Specifications\\ETSI_3GPP\\USIM\\ts_131102v171000p.pdf",
+  "pages_total": 368,
+  "elapsed_s": 247,
+  "device": "cuda",
+  "images_scale": 0.5,
+  "md_kb": 828,
+  "json_kb": 13730,
+  "md_lines": 5226,
+  "txt_pages": 368,
+  "h2_count": 251,
+  "h3_count": 0,
+  "h4_count": 0,
+  "table_rows": 2686,
+  "annex_in_md": 70,
+  "annex_in_txt": 65,
+  "ef_checks": {
+    "6F07": true,
+    "6F05": true,
+    "6F46": true,
+    "6F38": true,
+    "6F3B": true,
+    "6F3C": true
+  },
+  "issues": [
+    "Insufficient sub-headers (H4: 0)"
+  ],
+  "f1_patched": true,
+  "f2_dynamic_scale": true
+}

@@ -1,0 +1,50 @@
+{
+  "TS 35.206 (MILENAGE)": {
+    "cpu": {
+      "ok": true,
+      "time_s": 175,
+      "md_kb": 288,
+      "json_kb": 2089,
+      "lines": 2036,
+      "pages": 106
+    },
+    "gpu": {
+      "ok": true,
+      "time_s": 73,
+      "md_kb": 288,
+      "json_kb": 2078,
+      "lines": 2030,
+      "pages": 106
+    }
+  },
+  "TS 31.130 (JC API)": {
+    "cpu": {
+      "ok": true,
+      "time_s": 114,
+      "md_kb": 86,
+      "json_kb": 1328,
+      "lines": 832,
+      "pages": 28
+    },
+    "gpu": {
+      "ok": true,
+      "time_s": 27,
+      "md_kb": 86,
+      "json_kb": 1329,
+      "lines": 832,
+      "pages": 28
+    }
+  },
+  "batch_cpu": {
+    "ok": 3,
+    "failed": 0,
+    "time_s": 319,
+    "total_pages": 173
+  },
+  "batch_cuda": {
+    "ok": 3,
+    "failed": 0,
+    "time_s": 122,
+    "total_pages": 173
+  }
+}
