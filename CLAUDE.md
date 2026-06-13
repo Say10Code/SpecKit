@@ -124,7 +124,7 @@ specs-extracted/
 5. После обработки — **удали** исходный файл из `!INCOMING/`
 6. Обнови `Roadmap.md` (добавь в мастер-список)
 
-## 🔧 Skills (6)
+## 🔧 Skills (7)
 
 | Skill | Триггер |
 |---|---|
@@ -134,6 +134,7 @@ specs-extracted/
 | `/format-html` | Markdown → HTML (правила Mermaid — здесь!) |
 | `/roadmap` | Статус дорожной карты |
 | `/spec-download` | Скачать 3GPP-спецификацию → !INCOMING → полный пайплайн |
+| `/research` | Глубокое исследование темы через Researcher agent |
 
 ## 📄 Стандарты оформления
 

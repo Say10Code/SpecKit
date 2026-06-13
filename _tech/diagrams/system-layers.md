@@ -1,4 +1,4 @@
-# System Architecture Layers (5 layers, 8 agents)
+# System Architecture Layers (5 layers, 8 agents, 7 skills)
 
 ```mermaid
 graph TD
@@ -7,94 +7,84 @@ graph TD
         TERMINAL["Terminal / Claude CLI"]
     end
 
-    subgraph "Layer 4: Orchestration Skills — 5 total"
-        INGEST_SKILL["/ingest"]
-        REVIEW_SKILL["/review"]
-        LINT_SKILL["/lint"]
-        FORMAT_SKILL["/format-html"]
-        ROADMAP_SKILL["/roadmap"]
+    subgraph "Layer 4: Orchestration Skills — 7 total"
+        INGEST["/ingest"]
+        REVIEW["/review"]
+        LINT["/lint"]
+        FORMAT["/format-html"]
+        ROADMAP["/roadmap"]
+        DOWNLOAD["/spec-download"]
+        RESEARCH["/research"]
     end
 
-    subgraph "Layer 3: Sub-Agents — 8 total"
-        AUTHOR["Author"]
-        REVIEWER["Reviewer v2"]
-        LINKER["Linker"]
-        LIBRARIAN["Librarian"]
-        RESEARCHER["Researcher"]
-        FORMATTER["Formatter"]
-        SPECEXTRACTOR["SpecExtractor"]
-        SPECDOWNLOADER["SpecDownloader"]
+    subgraph "Layer 3: Agents — 8 total"
+        AUTHOR["Author — creates wiki pages"]
+        REVIEWER["Reviewer v3 — hybrid Pass 1 (TXT/MD/JSON)"]
+        LINKER["Linker — graph connectivity"]
+        LIBRARIAN["Librarian v2 — catalog + flatten"]
+        RESEARCHER["Researcher — deep investigations"]
+        FORMATTER["Formatter — MD to HTML"]
+        SPECEXTRACTOR["SpecExtractor v2 — PyPDF2 + Docling"]
+        SPECDOWNLOADER["SpecDownloader — spec-crawler checkout"]
     end
 
     subgraph "Layer 2: Data"
         SPECS["Specifications/ PDF — 65 files"]
         INCOMING["!INCOMING/"]
-        EXTRACTED["specs-extracted/ TXT — 58 files"]
+        EXTRACTED["specs-extracted/ — 58 TXT + 16 MD+JSON"]
         WIKI["wiki/ .md — 129 pages"]
-        NOTES["notes/ .md — 4 files"]
-        OUTPUTS["outputs/ .html and reports"]
+        NOTES["notes/ .md — 5 files"]
+        OUTPUTS["outputs/ .html"]
     end
 
-    subgraph "Layer 1: Meta"
+    subgraph "Layer 1: Meta / External"
         CLAUDE_MD["CLAUDE.md — 240 lines"]
-        ROADMAP["Roadmap.md"]
+        ROADMAP_FILE["Roadmap.md"]
         TEMPLATES[".obsidian/templates/ — 6 files"]
-        AGENTS_DEF[".claude/agents/ — 8 files"]
-        SKILLS_DEF[".claude/skills/ — 5 files"]
-        EXTERNAL["3gpp-crawler (spec-crawler CLI)"]
+        GIT[".git — version control"]
+        EXTERNAL["3gpp-crawler (spec-crawler + Docling)"]
     end
 
     OBSIDIAN --> CLAUDE_MD
     TERMINAL --> CLAUDE_MD
 
-    CLAUDE_MD --> INGEST_SKILL
-    CLAUDE_MD --> REVIEW_SKILL
-    CLAUDE_MD --> LINT_SKILL
-    CLAUDE_MD --> FORMAT_SKILL
-    CLAUDE_MD --> ROADMAP_SKILL
+    CLAUDE_MD --> INGEST
+    CLAUDE_MD --> REVIEW
+    CLAUDE_MD --> LINT
+    CLAUDE_MD --> FORMAT
+    CLAUDE_MD --> ROADMAP
+    CLAUDE_MD --> DOWNLOAD
+    CLAUDE_MD --> RESEARCH
 
-    INGEST_SKILL --> AUTHOR
-    INGEST_SKILL --> LINKER
-    INGEST_SKILL --> LIBRARIAN
-
-    REVIEW_SKILL --> REVIEWER
-    REVIEW_SKILL --> LINKER
-
-    LINT_SKILL --> WIKI
-
-    FORMAT_SKILL --> FORMATTER
-
-    ROADMAP_SKILL --> ROADMAP
+    DOWNLOAD --> SPECDOWNLOADER
+    DOWNLOAD --> LIBRARIAN
+    INGEST --> AUTHOR
+    INGEST --> LINKER
+    INGEST --> LIBRARIAN
+    REVIEW --> REVIEWER
+    REVIEW --> LINKER
+    LINT --> WIKI
+    FORMAT --> FORMATTER
+    ROADMAP --> ROADMAP_FILE
+    RESEARCH --> RESEARCHER
 
     SPECDOWNLOADER -->|spec-crawler| EXTERNAL
-    SPECDOWNLOADER -->|downloads to| INCOMING
+    SPECDOWNLOADER --> INCOMING
 
     AUTHOR --> WIKI
     AUTHOR --> TEMPLATES
-
     REVIEWER --> EXTRACTED
     REVIEWER --> WIKI
-
     LINKER --> WIKI
-
     LIBRARIAN --> SPECS
     LIBRARIAN --> INCOMING
     LIBRARIAN --> WIKI
-
     RESEARCHER --> WIKI
     RESEARCHER --> SPECS
-
     FORMATTER --> WIKI
     FORMATTER --> OUTPUTS
-
     SPECEXTRACTOR --> SPECS
     SPECEXTRACTOR --> EXTRACTED
 
     INCOMING --> LIBRARIAN
 ```
-
-## Notes
-
-- `SpecDownloader` is the newest agent (added 2026-06-12) — bridges 3gpp-crawler ↔ `!INCOMING/`
-- `3gpp-crawler` is an external CLI tool installed globally via `uv tool install`, not part of the ObsidianDB repo
-- Cache: `D:\ObsidianDB\.3gpp-crawler\` (in `.gitignore`)

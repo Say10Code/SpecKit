@@ -1,38 +1,45 @@
-# Agent Interaction Graph (8 agents)
+# Agent Interaction Graph (8 agents + 6 skills)
 
 ```mermaid
 graph TD
     CLAUDE["CLAUDE.md — Main Dispatcher"]
 
-    CLAUDE --> Librarian
-    CLAUDE --> Researcher
-    CLAUDE --> Reviewer
-    CLAUDE --> SpecExtractor
-    CLAUDE --> SpecDownloader
+    CLAUDE -->|/spec-download| SpecDownloader
+    CLAUDE -->|/ingest| Librarian
+    CLAUDE -->|/research| Researcher
+    CLAUDE -->|/review| Reviewer
+    CLAUDE -->|/format-html| Formatter
+    CLAUDE -->|/lint| LintTool
 
-    SpecDownloader -->|downloads PDFs to| IncomingDir
-    IncomingDir["!INCOMING/"] -->|triggers| Librarian
+    SpecDownloader -->|"spec-crawler checkout"| IncomingDir
+    IncomingDir["!INCOMING/"] -->|"flatten"| Librarian
 
-    Librarian -->|catalog new files| Author
-    Researcher -->|deep analysis| Author
+    Librarian -->|"catalog"| Author
+    Researcher -->|"deep analysis"| Author
 
-    Reviewer -->|reads TXT| SpecExtractor
-    Reviewer -->|checks wiki pages| Author
+    Reviewer -->|"reads"| SpecsExtracted
+    Reviewer -->|"checks"| Author
+    SpecExtractor -->|"writes"| SpecsExtracted
+    SpecExtractor -->|"reads"| SpecsDir
 
-    Author -->|creates pages| Linker
-    Linker -->|finds orphans| Author
+    Author -->|"creates pages"| Linker
+    Linker -->|"finds orphans"| Author
 
-    Author -->|produces MD| Formatter
-    Formatter -->|outputs HTML| Outputs
+    Author -->|"produces MD"| Formatter
+    Formatter -->|"outputs HTML"| Outputs
 
-    SpecExtractor -->|writes TXT| SpecsExtracted
-    SpecExtractor -->|reads PDF| SpecsDir
+    SpecDownloader -->|"spec-crawler"| SpecSource
+    SpecSource["3GPP FTP + WhatTheSpec API"]
 
-    Reviewer -->|reads| SpecsExtracted
-    Reviewer -->|checks| Wiki
-
-    SpecDownloader -->|spec-crawler checkout| SpecSource
-    SpecSource["3GPP FTP + WhatTheSpec.net API"]
+    subgraph "Skills — 7 total"
+        LintTool["/lint"]
+        IngestSkill["/ingest"]
+        ReviewSkill["/review"]
+        FormatSkill["/format-html"]
+        RoadmapSkill["/roadmap"]
+        DownloadSkill["/spec-download"]
+        ResearchSkill["/research"]
+    end
 
     subgraph "Agents — 8 total"
         Author
@@ -47,23 +54,13 @@ graph TD
 
     subgraph "Data"
         SpecsDir["Specifications/ PDF — 65 files"]
-        SpecsExtracted["specs-extracted/ TXT — 58 files"]
+        SpecsExtracted["specs-extracted/ — 58 TXT + 16 MD+JSON"]
         Wiki["wiki/ .md — 129 pages"]
-        Outputs["outputs/ .html + reports"]
+        Outputs["outputs/ .html"]
         IncomingDir
     end
 
     subgraph "External"
         SpecSource
     end
-```
-
-## Flow directions (updated)
-
-```
-SpecDownloader → !INCOMING/ → Librarian → Author → Linker     (new: auto-download pipeline)
-User → !INCOMING/ → Librarian → Author → Linker                (manual pipeline)
-Researcher → Author → Linker                                   (research pipeline)
-SpecExtractor → Reviewer → Author                              (review pipeline)
-Author → Formatter → Outputs                                   (formatting pipeline)
 ```

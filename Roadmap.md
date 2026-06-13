@@ -161,7 +161,7 @@ USIM_EF_Table, JavaCard_APIs, Status_Words, CLA_INS_SFI, Glossary
 | ISO/IEC 7816-5 — RID registry | ⬜ | Нужен PDF |
 | GP Card Spec 2.3.1 полный текст | ⬜ | Нужен PDF |
 | TS 35.206 — MILENAGE test vectors | ⬜ | Нужен PDF |
-| Git-инициализация | ⬜ | Отложено |
+| Git-инициализация | ✅ | `a35abfc` — 266 файлов, 110K+ вставок |
 
 ---
 

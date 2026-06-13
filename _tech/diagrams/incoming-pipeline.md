@@ -1,61 +1,37 @@
-# INCOMING Pipeline (v2 — with SpecDownloader)
+# INCOMING Pipeline (v3 — SpecDownloader + Docling)
 
 ```mermaid
 flowchart TD
     subgraph "Entry Points"
-        USER["User: manual PDF download"]
+        USER["User: manual PDF in !INCOMING/"]
         SD["SpecDownloader: spec-crawler checkout"]
     end
 
-    USER --> INCOMING["!INCOMING/ New PDF"]
-    SD -->|PDF appears| INCOMING
+    USER --> INCOMING["!INCOMING/ — new file detected"]
+    SD -->|"PDF appears in Specs/archive/"| INCOMING
 
-    INCOMING --> SCAN["Scan: compare name and size"]
+    INCOMING --> SCAN["Scan: compare name + size"]
 
-    SCAN --> DUP{Is Duplicate?}
+    SCAN --> DUP{"Is Duplicate?"}
 
-    DUP -->|YES| DOUBLE["Move to !double/"]
-    DUP -->|NO| LIBRARIAN["Librarian: catalog and sort"]
+    DUP -->|"YES"| DOUBLE["Move to !double/"]
+    DUP -->|"NO"| LIBRARIAN["Librarian: catalog + flatten"]
 
-    LIBRARIAN --> SORT["Sort by category"]
+    LIBRARIAN --> SORT["Sort: .category-map.md lookup"]
 
-    SORT --> CAT1["ETSI_3GPP/"]
-    SORT --> CAT2["eSIM/"]
-    SORT --> CAT3["JavaCard/"]
-    SORT --> CAT4["Books/"]
-    SORT --> CAT5["Manuals/"]
-    SORT --> CAT6["Papers/"]
-    SORT --> CAT7["Tutorials/"]
+    SORT --> CATEGORIES["ETSI_3GPP/ | eSIM/ | GlobalPlatform/ | Books/ | ..."]
 
-    CAT1 --> INGEST["/ingest skill"]
-    CAT2 --> INGEST
-    CAT3 --> INGEST
-    CAT4 --> INGEST
-    CAT5 --> INGEST
-    CAT6 --> INGEST
-    CAT7 --> INGEST
+    CATEGORIES --> INGEST["/ingest skill"]
+    INGEST --> AUTHOR["Author: summary + concepts + entities"]
+    AUTHOR --> LINKER["Linker: cross-references"]
+    LINKER --> LINT["/lint: health check"]
+    LINT -->|"0 errors"| ROADMAP["Update Roadmap.md"]
+    LINT -->|"errors found"| FIX["Fix + re-lint"]
 
-    INGEST --> STEP1["Step 1: Read file (PyPDF2)"]
-    STEP1 --> STEP2["Step 2: Create summary via Author"]
-    STEP2 --> STEP3["Step 3: Extract concepts via Author"]
-    STEP3 --> STEP4["Step 4: Record entities via Author"]
-    STEP4 --> STEP5["Step 5: Create synthesis via Author"]
-    STEP5 --> STEP6["Step 6: Cross-link via Linker"]
-
-    STEP6 --> LINT["/lint: health check"]
-    LINT -->|0 errors| ROADMAP["Update Roadmap.md"]
-    LINT -->|errors found| FIX["Fix issues"]
-    FIX --> LINT
-
-    ROADMAP --> SPECEXTRACT["SpecExtractor: PDF to TXT"]
-    SPECEXTRACT --> DONE["Complete"]
+    ROADMAP --> EXTRACT["SpecExtractor: dual extraction"]
+    EXTRACT -->|"3GPP PDF"| DOCLING["Docling GPU: .md + .json"]
+    EXTRACT -->|"all PDF"| PYPDF2["PyPDF2: .txt fallback"]
+    DOCLING --> DONE["Complete — specs-extracted/ updated"]
+    PYPDF2 --> DONE
     DOUBLE --> DONE
 ```
-
-## What changed from v1
-
-| Change | Detail |
-|---|---|
-| New entry: SpecDownloader | `spec-crawler checkout` → PDF in `!INCOMING/` automatically |
-| 3GPP FTP + WhatTheSpec API | No manual download from portal needed |
-| Same pipeline after `!INCOMING/` | Librarian → /ingest → /lint unchanged |
