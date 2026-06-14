@@ -9,6 +9,7 @@
 | Тема | Файл |
 |---|---|
 | **Карта проекта** | [[STRUCTURE.md]] |
+| **Core-манифест** | `.core-paths.md` |
 | Инженерный хаб | `_tech/INDEX.md` |
 | Структура и права доступа | `.claude/includes/structure.md` |
 | Агенты (8) + Reviewer truth hierarchy | `.claude/includes/agents.md` |

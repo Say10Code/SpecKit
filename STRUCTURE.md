@@ -1,124 +1,122 @@
-# STRUCTURE — карта проекта
+# STRUCTURE — карта проекта ObsidianDB
 
-> Быстрый ответ на вопрос «где что лежит»
+> Быстрый ответ на вопрос «где что лежит». Для *почему* — `.core-paths.md`.
+
+---
+
+## Схема
+
+```
+D:\ObsidianDB\
+│
+├── 🧠 CORE — движок (версионируется в git, ~240 файлов)
+│   │
+│   ├── .claude/            ← AI-интеллект: 8 agents + 7 skills + 6 includes
+│   ├── .obsidian/          ← Obsidian config: 6 templates, плагины, тема, граф
+│   ├── _pipeline/          ← speckit: download + 3-tier extraction + spec-registry
+│   ├── _tech/              ← Инженерная документация: архитектура, планы, отчёты
+│   │
+│   ├── CLAUDE.md            ← Главный диспетчер AI (точка входа для Claude Code)
+│   ├── README.md            ← Описание проекта (точка входа для людей)
+│   ├── Roadmap.md           ← Дорожная карта (Management слой)
+│   ├── STRUCTURE.md         ← Этот файл — навигационная карта
+│   ├── .core-paths.md       ← Манифест: почему каждый Core-файл на своём месте
+│   └── pyproject.toml       ← Python-зависимости (speckit)
+│
+├── 📚 DATA — хранилище знаний (НЕ в git)
+│   │
+│   ├── wiki/                ← База знаний (124 стр. + 7 индексов)
+│   ├── Specifications/      ← Исходные PDF/DOCX спецификаций (74 + 16)
+│   ├── specs-extracted/     ← Эталонные тексты (78 TXT + 86 MD + 70 JSON)
+│   ├── notes/               ← Заметки пользователя (6 файлов)
+│   └── Clippings/           ← Web-clippings из Obsidian (4 файла)
+│
+├── 📦 GENERATED — артефакты пайплайнов (НЕ в git)
+│   │
+│   ├── graphify-out/        ← Граф знаний (graph.json + GRAPH_REPORT.md)
+│   ├── outputs/             ← HTML-отчёты Formatter'а (2 файла)
+│   ├── raw/                 ← Inbox для graphify
+│   └── _backups/            ← Data-бэкапы от backup_data.py
+│
+└── ⚙️ BUILD — окружение (НЕ в git)
+    │
+    ├── .venv/               ← Python: docling + torch + httpx (uv sync)
+    ├── .speckit/            ← speckit кэш: metadata.db (120 KB)
+    └── .git/                ← История версий (9 коммитов)
+```
 
 ---
 
 ## Как ориентироваться
 
-```
-D:\ObsidianDB\
-│
-├── 🧠 CORE — движок (версионируется в git, 234 файла)
-│   │  _префикс = Python-пакет или инженерная документация
-│   │  .префикс = конфигурация (скрытая в проводнике)
-│   │
-│   ├── .claude/          AI-интеллект (8 агентов + 7 скиллов + 6 includes)
-│   ├── .obsidian/        Конфиг Obsidian (шаблоны, плагины, тема)
-│   ├── _pipeline/        speckit: скачивание + извлечение спецификаций
-│   ├── _tech/            Инженерная документация (архитектура, планы, отчёты)
-│   │
-│   ├── CLAUDE.md         Главный диспетчер — точка входа для AI
-│   ├── README.md         Описание проекта — для людей
-│   ├── Roadmap.md        Дорожная карта
-│   ├── STRUCTURE.md      Этот файл — навигационная карта
-│   ├── pyproject.toml    Python-зависимости
-│   └── uv.lock           Lock-файл окружения
-│
-├── 📚 DATA — хранилище знаний (НЕ в git)
-│   │  без префикса = контент, с которым работают агенты
-│   │
-│   ├── wiki/             База знаний (130 страниц + 7 индексов)
-│   ├── Specifications/   Исходные PDF/DOCX спецификаций (74 + 20)
-│   ├── specs-extracted/  Эталонные тексты — TXT + MD + JSON (237 файлов)
-│   ├── notes/            Заметки пользователя (5 файлов)
-│   └── Clippings/        Web-clippings из Obsidian (3 файла)
-│
-├── ⚙️ BUILD & CACHE — генерируется, НЕ в git
-│   │
-│   ├── .venv/            Python-окружение (uv sync)
-│   ├── .speckit/         Кэш метаданных 3GPP/ETSI (SQLite)
-│   └── .git/             История версий
-│
-└── 📦 GENERATED — вывод пайплайнов, НЕ в git
-    │
-    ├── graphify-out/     Граф знаний (graph.json + GRAPH_REPORT.md)
-    ├── outputs/          HTML-отчёты (Formatter)
-    └── raw/              Входящие для graphify
-```
-
-## Что где
-
 ### 🧠 CORE
 
-| Директория | Что внутри | Ключевой файл |
+| Что | Где | Ключевой файл |
 |---|---|---|
-| `.claude/agents/` | 8 агентов: Author, Reviewer, Linker, Librarian, Researcher, Formatter, SpecDownloader, SpecExtractor | `author.md` |
-| `.claude/skills/` | 7 скиллов: lint-wiki, ingest, review, format-html, roadmap-status, spec-download, research | `spec-download/SKILL.md` |
-| `.claude/includes/` | 6 includes: structure, agents, skills, standards, incoming, speckit | `speckit.md` |
-| `.obsidian/templates/` | 6 шаблонов: t-concept, t-entity, t-summary, t-synthesis, t-reference, t-note | |
-| `_pipeline/` | 10 модулей speckit: download, metadata, extract (docx/docling/pypdf2), cli | `cli.py` |
-| `_tech/architecture/` | Архитектура v3 + архив v1-v2 | `ARCHITECTURE-v3.md` |
-| `_tech/plans/` | 1 активный план (consolidation) + 6 в архиве | `consolidation-plan.md` |
-| `_tech/reports/` | 16 отчётов: speckit-миграция, оркестрация, Core-vs-Data, аудиты, ревью | |
-| `_tech/scripts/` | 13 скриптов: quality_metrics, audit_connectivity, extract_docx, ... | |
-| `_tech/diagrams/` | 5 Mermaid-диаграмм | `agent-interactions.md` |
-| `_tech/benchmarks/` | 5 результатов бенчмарков/метрик (JSON) | |
-| `_tech/BACKLOG.md` | Беклог задач (52 завершено) | |
-| `_tech/README.md` | Индекс инженерной документации | |
+| **Агенты** | `.claude/agents/` | `author.md` — создаёт wiki-страницы |
+| **Скиллы** | `.claude/skills/` | `spec-download/SKILL.md` — скачать + обработать |
+| **Инклуды** | `.claude/includes/` | `speckit.md` — интеграция speckit |
+| **Шаблоны** | `.obsidian/templates/` | 6 шаблонов: t-concept, t-entity, t-summary, ... |
+| **Speckit** | `_pipeline/` | `cli.py` — `python -m _pipeline` |
+| **Spec Registry** | `_pipeline/.spec-registry.md` | 99 спецификаций, 14 категорий |
+| **Архитектура** | `_tech/architecture/` | `ARCHITECTURE-v3.md` — 3-tier extraction |
+| **Планы** | `_tech/plans/` | `consolidation-plan.md` — единственный активный |
+| **Отчёты** | `_tech/reports/` | 18 отчётов: speckit-миграция, оркестрация, аудиты |
+| **Скрипты** | `_tech/scripts/` | `backup_data.py`, `sync_data.py`, quality, audit |
+| **Диаграммы** | `_tech/diagrams/` | `agent-interactions.md`, `system-layers.md` |
+| **Беклог** | `_tech/BACKLOG.md` | 57/62 задач завершено |
+| **Индекс** | `_tech/INDEX.md` | Навигация по инженерной документации |
 
 ### 📚 DATA
 
-| Директория | Что внутри | Кем наполняется |
+| Что | Где | Кем наполняется |
 |---|---|---|
-| `wiki/concepts/` | Концепты (2-4 KB) | Author v2 |
-| `wiki/summaries/` | Саммари спецификаций (2-5 KB) | Author v2 |
-| `wiki/syntheses/` | Кросс-анализ (5-15 KB) | Author v2 |
-| `wiki/entities/` | Организации/стандарты | Author v2 |
-| `wiki/research/` | Глубокие исследования (15-50 KB) | Researcher |
-| `wiki/reference/` | Справочные таблицы | Author v2 |
-| `Specifications/!INCOMING/` | Входная точка для новых файлов | SpecDownloader, пользователь |
-| `Specifications/ETSI_3GPP/` | 3GPP/ETSI спецификации (9 подпапок) | Librarian |
-| `Specifications/eSIM/` | GSMA eSIM | Librarian |
-| `Specifications/GlobalPlatform/` | GPC Card Spec | Librarian |
-| `Specifications/ISO7816_Analysis/` | ISO/IEC 7816 | Librarian |
-| `Specifications/JavaCard/` | TCA документы | Librarian |
-| `Specifications/Books/` | Учебники | Пользователь |
-| `specs-extracted/` | Зеркалит структуру Specifications/ | SpecExtractor |
+| **Concepts** | `wiki/concepts/` | Author v2 |
+| **Summaries** | `wiki/summaries/` | Author v2 |
+| **Syntheses** | `wiki/syntheses/` | Author v2 |
+| **Research** | `wiki/research/` | Researcher |
+| **Reference** | `wiki/reference/` | Author v2 |
+| **Entities** | `wiki/entities/` | Author v2 |
+| **!INCOMING** | `Specifications/!INCOMING/` | SpecDownloader |
+| **3GPP/ETSI** | `Specifications/ETSI_3GPP/` | Librarian |
+| **Эталоны** | `specs-extracted/` | SpecExtractor |
 
-## Как не сломать wikilinks
+### 📦 GENERATED
 
-```
-✅ Можно    — Создавать/удалять файлы внутри wiki/, Specifications/, specs-extracted/
-✅ Можно    — Перемещать Core (.claude/, _pipeline/, _tech/)
-✅ Можно    — Менять корневые .md (CLAUDE.md, README.md, Roadmap.md)
-❌ Нельзя   — Переименовывать wiki/, Specifications/, specs-extracted/
-❌ Нельзя   — Перемещать файлы МЕЖДУ директориями верхнего уровня внутри Data
-```
-
-## Соглашения
-
-| Правило | Зачем |
-|---|---|
-| `_префикс` = Core | Сразу видно что это движок, а не контент |
-| `.префикс` = Конфиг/кэш | Не мешается в проводнике, не коммитится (venv, speckit) |
-| Без префикса = Data | Контент хранилища и сгенерированные артефакты |
-| Core в git, Data нет | `.gitignore` отражает границу (см. `_tech/reports/core-vs-data-separation-analysis.md`) |
-| `_tech/` для инженеров | Архитектура, планы, отчёты, скрипты — всё что нужно для развития проекта |
-
-## Точки входа
-
-| Ты хочешь... | Иди сюда |
-|---|---|
-| Понять что такое проект | `README.md` |
-| Понять где что лежит | `STRUCTURE.md` (этот файл) |
-| Понять как думает AI | `CLAUDE.md` → `.claude/includes/` |
-| Понять архитектуру | `_tech/architecture/ARCHITECTURE-v3.md` |
-| Понять что делается сейчас | `_tech/BACKLOG.md` |
-| Понять куда движемся | `Roadmap.md` |
-| Скачать спецификацию | `python -m _pipeline download 31.102` |
-| Извлечь текст | `python -m _pipeline extract docx <путь>` |
+| Что | Где | Создаётся |
+|---|---|---|
+| **Граф** | `graphify-out/graph.json` | `/graphify` |
+| **Отчёт графа** | `graphify-out/GRAPH_REPORT.md` | `/graphify` |
+| **HTML** | `outputs/*.html` | Formatter |
+| **Data-бэкапы** | `_backups/*.zip` | `backup_data.py` |
 
 ---
 
-*Обновлено: 2026-06-14. Структура отражает Core/Data разделение из P2-10.*
+## Точки входа
+
+| Хочешь... | Иди сюда |
+|---|---|
+| Понять что такое проект | `README.md` |
+| Понять где что лежит | `STRUCTURE.md` (этот файл) |
+| Понять почему так лежит | `.core-paths.md` |
+| Понять как думает AI | `CLAUDE.md` → `.claude/includes/` |
+| Понять архитектуру | `_tech/architecture/ARCHITECTURE-v3.md` |
+| Понять что делается сейчас | `_tech/BACKLOG.md` |
+| Скачать спецификацию | `python -m _pipeline download 31.102` |
+| Извлечь текст | `python -m _pipeline extract docx <путь>` |
+| Найти спецификацию по теме | `python -m _pipeline registry suggest "5G NR"` |
+
+---
+
+## Исключения Core-в-Data
+
+Два файла физически лежат внутри Data, но являются Core и версионируются:
+
+| Файл | Почему в Data | Почему Core |
+|---|---|---|
+| `Specifications/.category-map.md` | Нужен Librarian'у для сортировки — должен быть рядом с файлами | Единственный source of truth серия→тема. Обновляется вручную. Версионируется |
+| `specs-extracted/INDEX.md` | Нужен Reviewer'у для выбора формата — должен быть рядом с извлечёнными текстами | Реестр доступных форматов. Обновляется SpecExtractor'ом. Версионируется |
+
+---
+
+*Обновлено: 2026-06-14. Синхронизировано с `.core-paths.md`. Core: 10 позиций + 4 исключения.*
