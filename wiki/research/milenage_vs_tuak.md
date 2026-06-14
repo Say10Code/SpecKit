@@ -4,14 +4,16 @@ type: research
 level: advanced
 status: reviewed
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-14
 sources:
   - "[[wiki/syntheses/auth_evolution]]"
   - "[[wiki/concepts/UICC_Security]]"
   - "[[wiki/concepts/USIM]]"
   - "[[wiki/summaries/ts_131102]]"
   - "3GPP TS 35.205 (MILENAGE Specification)"
+  - "3GPP TS 35.206 (MILENAGE Test Vectors)"
   - "3GPP TS 35.231 (TUAK Specification)"
+  - "3GPP TS 35.232 (TUAK Test Vectors)"
   - "3GPP TS 33.102 (3G Security Architecture)"
   - "3GPP TS 33.401 (EPS Security)"
   - "3GPP TS 33.501 (5G Security)"

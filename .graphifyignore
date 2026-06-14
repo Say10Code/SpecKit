@@ -1,0 +1,58 @@
+# graphify ignore — архитектура ObsidianDB, не контент
+wiki/
+Specifications/
+specs-extracted/
+notes/
+outputs/
+Clippings/
+.claudian/
+.3gpp-crawler/
+node_modules/
+.git/
+.venv/
+__pycache__/
+*.pyc
+*.pdf
+*.docx
+*.jpg
+*.png
+*.exe
+*.dll
+
+# Obsidian — только конфиги и шаблоны
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/hotkeys.json
+
+# 3gpp-crawler — только интерфейсный слой
+3gpp-crawler/.planning/
+3gpp-crawler/tests/
+3gpp-crawler/docs/history/
+3gpp-crawler/packages/
+3gpp-crawler/scripts/
+3gpp-crawler/.vscode/
+3gpp-crawler/codecov.yaml
+3gpp-crawler/mkdocs.yml
+3gpp-crawler/.pre-commit-config.yaml
+3gpp-crawler/ruff.toml
+3gpp-crawler/tox.ini
+3gpp-crawler/ty.toml
+3gpp-crawler/uv.lock
+3gpp-crawler/demo.bat
+3gpp-crawler/src/tdoc_crawler/database/
+3gpp-crawler/src/tdoc_crawler/meetings/
+3gpp-crawler/src/tdoc_crawler/tdocs/
+3gpp-crawler/src/tdoc_crawler/models/
+3gpp-crawler/src/tdoc_crawler/parsers/
+3gpp-crawler/src/tdoc_crawler/workspaces/
+3gpp-crawler/src/tdoc_crawler/workers/
+3gpp-crawler/src/tdoc_crawler/http_client/
+3gpp-crawler/src/tdoc_crawler/logging/
+3gpp-crawler/src/tdoc_crawler/constants/
+3gpp-crawler/src/tdoc_crawler/utils/
+
+# graphify собственный output
+graphify-out/
+
+# Кириллический файл (не читается)
+Добро пожаловать.md

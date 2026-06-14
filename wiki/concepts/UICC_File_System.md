@@ -1,7 +1,7 @@
 ---
 tags: [UICC, file-system, MF, DF, ADF, EF]
 created: 2026-06-10
-updated: 2026-06-11
+updated: 2026-06-14
 status: reviewed
 sources:
   - "[[wiki/summaries/ts_102221]]"
@@ -100,6 +100,46 @@ graph TD
 | `0x2F06` | EF_ARR | Access Rule Reference |
 | `0x2FFF` | — | Зарезервирован (выбор родительского DF) |
 | `0x3FFF` | — | Зарезервирован (пустой PIN) |
+
+## Иерархия DF под MF
+
+В современных UICC (Release 13+) под MF находятся следующие ключевые DF: ^[extracted]
+
+```
+MF (3F00)
+├── EF_DIR (2F00)                    ← Application Directory
+├── EF_ICCID (2FE2)                  ← ICC Identification
+├── DF_CD (5F01)                     ← Config Data (опционально)
+│   └── EF_ICON (4F20)               ← STK Menu Icons
+├── DF_TELECOM (7F10)                ← Телеком-уровень
+│   ├── EF_ADN (4F30)               ← Телефонная книга
+│   ├── EF_EXT1 (4F4A)              ← Extension
+│   ├── DF_PHONEBOOK (5F3A)         ← Phonebook DF
+│   ├── DF_GRAPHICS (5F50)          ← Графическая директория
+│   │   ├── EF_IMG (4F20)           ← Массив изображений (TLV)
+│   │   ├── EF_IIDF (4F21)          ← Метаданные изображений
+│   │   └── EF_ICE_graphics (4FXX)  ← Emergency graphics
+│   ├── DF_MULTIMEDIA (5F3B)
+│   └── DF_MMSS (5F3C)
+└── ADF.USIM (A0000000871002...)     ← USIM-приложение
+    └── (подробнее: USIM_EF_Table)
+```
+
+> [!note] Историческая справка
+> В старых UICC (до Release 10) DF_GRAPHICS находился под DF_CD, а DF_TELECOM отсутствовал. При работе с legacy SIM-картами файловая структура может отличаться.
+
+## Зарезервированные File ID для DF
+
+| FID | DF | Назначение |
+|---|---|---|
+| `0x3F00` | MF | Корень |
+| `0x7F10` | DF_TELECOM | Телеком-уровень |
+| `0x7F20` | DF_GSM | GSM-уровень |
+| `0x5F01` | DF_CD | Config Data |
+| `0x5F50` | DF_GRAPHICS | Графическая директория |
+| `0x5F3A` | DF_PHONEBOOK | Телефонная книга |
+| `0x5F3B` | DF_MULTIMEDIA | Мультимедиа |
+| `0x5F3C` | DF_MMSS | MMS Storage |
 
 ## Ключевые принципы
 

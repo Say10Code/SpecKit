@@ -2,7 +2,7 @@
 tags: [reference, USIM, EF, table]
 type: reference
 created: 2026-06-10
-updated: 2026-06-11
+updated: 2026-06-14
 status: reviewed
 sources:
   - "[[wiki/summaries/ts_131102]]"
@@ -78,8 +78,8 @@ sources:
 
 | EF | FID | Описание |
 |---|---|---|
-| EF_SPN_Icon | `6FD7` | SPN Icon (PNG/JPEG) [[wiki/research/operator_icons_on_sim\|📄]] |
-| EF_PNN_Icon | `6FD8` | PNN Icon (PNG/JPEG) [[wiki/research/operator_icons_on_sim\|📄]] |
+| EF_SPN_Icon | `6FDE` | SPN Icon (PNG/JPEG) [[wiki/research/operator_icons_on_sim\|📄]] |
+| EF_PNN_Icon | `6FDF` | PNN Icon (PNG/JPEG) [[wiki/research/operator_icons_on_sim\|📄]] |
 | EF_SMSP | `6F42` | SMS Parameters |
 | EF_ARR | `6F06` | Access Rule Reference |
 

@@ -43,42 +43,52 @@ spec-crawler checkout 31.102 102.221 ... --checkout-dir "D:\ObsidianDB\Specifica
 
 Найди файлы в `!INCOMING/Specs/archive/` → перемести в правильную тематическую директорию.
 
-**Таблица серий → тем:**
-
-| Серия | Тематическая директория |
-|---|---|
-| 31.xxx (UICC/USIM) | `ETSI_3GPP/USIM/` |
-| 102.221 (UICC Platform) | `ETSI_3GPP/UICC/` |
-| 102.223 (CAT/STK) | `ETSI_3GPP/CAT_STK/` |
-| 102.225, 102.226 (OTA) | `ETSI_3GPP/OTA/` |
-| 102.241, 131.130, 143.019 | `ETSI_3GPP/UICC_API/` |
-| 101.xxx (Numbering) | `ETSI_3GPP/Numbering/` |
-| 123.xxx, 133.xxx (Security) | `ETSI_3GPP/Security/` |
-| 151.xxx, GSM 11.11 | `ETSI_3GPP/GSM_Legacy/` |
-| 131.121, 131.124, 151.017 | `ETSI_3GPP/Test_Conformance/` |
-| 35.xxx (Algorithms) | `ETSI_3GPP/Security/` |
-| 23.xxx (5G Core) | `ETSI_3GPP/` |
-| 24.xxx (SIP/IMS) | `ETSI_3GPP/` |
-| Остальные 3GPP/ETSI | `ETSI_3GPP/` |
+**Маппинг серий → тем**: см. `Specifications/.category-map.md` — **единый source of truth**. Не дублируй таблицу здесь.
 
 После перемещения — **удали** всю структуру `!INCOMING/Specs/`.
 
-### Шаг 4: /ingest (если не --no-ingest)
+### Шаг 4: Параллельный Batch Authoring + пайплайн (если не --no-ingest)
 
-Для каждого нового файла:
-1. Author создаёт summary в `wiki/summaries/`
-2. Author извлекает концепты → `wiki/concepts/`
-3. Author фиксирует сущности → `wiki/entities/`
-4. Linker расставляет связи
-5. Обновить `wiki/index.md` и раздельные индексы
+**Для нескольких спецификаций — диспатч ВСЕ Author v2 вызовы ПАРАЛЛЕЛЬНО в одном сообщении.** Это ключевая оптимизация: 3 спецификации обрабатываются за время одной.
 
-### Шаг 5: SpecExtractor
+```
+ОДНИМ СООБЩЕНИЕМ:
+  Agent: Author v2 — пакетная обработка <путь-к-Spec1>
+  Agent: Author v2 — пакетная обработка <путь-к-Spec2>
+  Agent: Author v2 — пакетная обработка <путь-к-Spec3>
+  (все три выполняются одновременно!)
+```
 
-Извлечь текст PDF → TXT в `specs-extracted/` для Reviewer'а.
+**Для одной спецификации** — просто один вызов Author v2 Batch.
 
-### Шаг 6: /lint
+После завершения ВСЕХ Author'ов:
+1. **Linker** — ОДИН проход кросс-ссылок между всеми новыми страницами
+2. **extract_docx.py --tables** — для каждого .docx (Tier 1, параллельно)
+3. **Обновить индексы** — `wiki/index.md` + раздельные (один проход)
 
-Проверить здоровье: битые ссылки, сироты, frontmatter.
+⏱️ **Время**: 3 спецификации = max(время одной) + Linker, вместо суммы трёх.
+
+### Шаг 5: SpecExtractor — Tier 1 (.docx) или Tier 2/3 (PDF)
+
+**Для .docx файлов (spec-crawler checkout)** — основной путь, Tier 1:
+
+```bash
+python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+→ specs-extracted/<категория>/*.txt (plain, grep)
+→ specs-extracted/<категория>/*.md (таблицы, структурировано)
+```
+
+**Только если .docx не доступен** — PDF извлечение:
+```
+Agent: SpecExtractor — извлеки <путь-к-PDF>
+→ specs-extracted/<категория>/*.txt (+ MD+JSON для 3GPP через Docling)
+```
+
+⚠️ **extract_docx.py — всегда первый**. Без таблиц Reviewer не может проверить структуры EF.
+
+### Шаг 6: /lint — авто-вызов
+
+Проверить здоровье: битые ссылки, сироты, frontmatter. Если ошибки → исправить.
 
 ### Шаг 7: Обновить Roadmap
 

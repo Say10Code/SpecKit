@@ -1,0 +1,241 @@
+{
+  "runs": [
+    {
+      "timestamp": "2026-06-14T11:31:05.837113",
+      "date": "2026-06-14",
+      "wiki": {
+        "total": 130,
+        "with_frontmatter": 130,
+        "frontmatter_pct": 100.0,
+        "by_type": {
+          "concept": 9,
+          "hub": 3,
+          "reference": 5,
+          "research": 9,
+          "slides": 1,
+          "whitepaper": 1,
+          "summary": 21,
+          "specification": 10,
+          "project": 1,
+          "tutorial": 4,
+          "analysis": 1,
+          "tool-manual": 1,
+          "thesis": 3,
+          "article": 1,
+          "code-samples": 1,
+          "practical-examples": 1,
+          "technical-document": 1,
+          "presentation": 1,
+          "synthesis": 25
+        },
+        "by_status": {
+          "reviewed": 123
+        },
+        "reviewed_pct": 94.6,
+        "missing_required_fields": 31
+      },
+      "connectivity": {
+        "total_pages": 130,
+        "content_pages": 123,
+        "total_links": 1251,
+        "avg_inbound": 10.0,
+        "avg_outbound": 9.0,
+        "median_inbound": 5,
+        "median_outbound": 7,
+        "orphans": 1,
+        "orphan_pct": 0.8,
+        "weak_in_count": 25,
+        "weak_out_count": 10,
+        "bridges_count": 61,
+        "max_inbound": 75,
+        "max_outbound": 46
+      },
+      "specs": {
+        "total_pdfs": 74,
+        "extracted_txt": 78,
+        "extracted_md": 53,
+        "extracted_json": 37,
+        "docling_md": 46,
+        "extract_docx_md": 14,
+        "coverage_pct": 105.4
+      },
+      "frontmatter": {
+        "errors": 0,
+        "warnings": 58,
+        "last_check": "2026-06-13T23:41:43.567973"
+      },
+      "backlog": {
+        "total_completed_in_table": 39,
+        "active_in_table": 13,
+        "active_p0": 0,
+        "active_p1": 2,
+        "active_p2": 7,
+        "active_p3": 4,
+        "completed_this_session": 0
+      },
+      "activity": {
+        "pages_created_7d": 123,
+        "pages_created_30d": 123,
+        "checked_at": "2026-06-14T11:31:06.012731"
+      }
+    },
+    {
+      "timestamp": "2026-06-14T13:20:31.955386",
+      "date": "2026-06-14",
+      "wiki": {
+        "total": 130,
+        "with_frontmatter": 130,
+        "frontmatter_pct": 100.0,
+        "by_type": {
+          "concept": 9,
+          "hub": 3,
+          "reference": 5,
+          "research": 9,
+          "slides": 1,
+          "whitepaper": 1,
+          "summary": 21,
+          "specification": 10,
+          "project": 1,
+          "tutorial": 4,
+          "analysis": 1,
+          "tool-manual": 1,
+          "thesis": 3,
+          "article": 1,
+          "code-samples": 1,
+          "practical-examples": 1,
+          "technical-document": 1,
+          "presentation": 1,
+          "synthesis": 25
+        },
+        "by_status": {
+          "reviewed": 123
+        },
+        "reviewed_pct": 94.6,
+        "missing_required_fields": 31
+      },
+      "connectivity": {
+        "total_pages": 130,
+        "content_pages": 123,
+        "total_links": 1251,
+        "avg_inbound": 10.0,
+        "avg_outbound": 9.0,
+        "median_inbound": 5,
+        "median_outbound": 7,
+        "orphans": 1,
+        "orphan_pct": 0.8,
+        "weak_in_count": 25,
+        "weak_out_count": 10,
+        "bridges_count": 61,
+        "max_inbound": 75,
+        "max_outbound": 46
+      },
+      "specs": {
+        "total_pdfs": 74,
+        "extracted_txt": 78,
+        "extracted_md": 85,
+        "extracted_json": 69,
+        "docling_md": 46,
+        "extract_docx_md": 20,
+        "coverage_pct": 105.4
+      },
+      "frontmatter": {
+        "errors": 0,
+        "warnings": 58,
+        "last_check": "2026-06-13T23:41:43.567973"
+      },
+      "backlog": {
+        "total_completed_in_table": 40,
+        "active_in_table": 14,
+        "active_p0": 0,
+        "active_p1": 2,
+        "active_p2": 8,
+        "active_p3": 4,
+        "completed_this_session": 0
+      },
+      "activity": {
+        "pages_created_7d": 123,
+        "pages_created_30d": 123,
+        "checked_at": "2026-06-14T13:20:33.274265"
+      }
+    },
+    {
+      "timestamp": "2026-06-14T13:35:05.656591",
+      "date": "2026-06-14",
+      "wiki": {
+        "total": 130,
+        "with_frontmatter": 130,
+        "frontmatter_pct": 100.0,
+        "by_type": {
+          "concept": 9,
+          "hub": 3,
+          "reference": 5,
+          "research": 9,
+          "slides": 1,
+          "whitepaper": 1,
+          "summary": 21,
+          "specification": 10,
+          "project": 1,
+          "tutorial": 4,
+          "analysis": 1,
+          "tool-manual": 1,
+          "thesis": 3,
+          "article": 1,
+          "code-samples": 1,
+          "practical-examples": 1,
+          "technical-document": 1,
+          "presentation": 1,
+          "synthesis": 25
+        },
+        "by_status": {
+          "reviewed": 123
+        },
+        "reviewed_pct": 94.6,
+        "missing_required_fields": 31
+      },
+      "connectivity": {
+        "total_pages": 130,
+        "content_pages": 123,
+        "total_links": 1251,
+        "avg_inbound": 10.0,
+        "avg_outbound": 9.0,
+        "median_inbound": 5,
+        "median_outbound": 7,
+        "orphans": 1,
+        "orphan_pct": 0.8,
+        "weak_in_count": 25,
+        "weak_out_count": 10,
+        "bridges_count": 61,
+        "max_inbound": 75,
+        "max_outbound": 46
+      },
+      "specs": {
+        "total_pdfs": 74,
+        "extracted_txt": 78,
+        "extracted_md": 85,
+        "extracted_json": 69,
+        "docling_md": 46,
+        "extract_docx_md": 20,
+        "coverage_pct": 105.4
+      },
+      "frontmatter": {
+        "errors": 0,
+        "warnings": 58,
+        "last_check": "2026-06-13T23:41:43.567973"
+      },
+      "backlog": {
+        "total_completed_in_table": 40,
+        "active_in_table": 14,
+        "active_p0": 0,
+        "active_p1": 2,
+        "active_p2": 8,
+        "active_p3": 4,
+        "completed_this_session": 0
+      },
+      "activity": {
+        "pages_created_7d": 123,
+        "pages_created_30d": 123,
+        "checked_at": "2026-06-14T13:35:05.835661"
+      }
+    }
+  ]
+}

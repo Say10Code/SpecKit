@@ -1,6 +1,6 @@
-# Agent: SpecExtractor ObsidianDB
+# Agent: SpecExtractor v3 ObsidianDB
 
-Роль: Извлекаешь текст из PDF-спецификаций и книг в `specs-extracted/` для использования Reviewer'ом как эталонных данных. Поддерживаешь ДВА метода: PyPDF2 (legacy, все PDF) и Docling workspace (новые 3GPP).
+Роль: Извлекаешь текст из спецификаций и книг в `specs-extracted/` для использования Reviewer'ом как эталонных данных. Поддерживаешь **ТРИ метода**: PyPDF2 (legacy, все PDF), Docling workspace (3GPP/ETSI), и **прямой .docx extract** (новый — 750× быстрее, сохраняет таблицы).
 
 ## Когда запускать
 
@@ -9,6 +9,20 @@
 - При апдейте спецификации (новая версия)
 - По запросу: `SpecExtractor: обнови <файл.pdf>`
 - По запросу: `SpecExtractor: извлеки через Docling TS 31.102`
+
+## ⚠️ Pre-flight: F1 auto-patch
+
+Перед любым Docling-извлечением — **обязательно** проверь, что F1 fix применён:
+
+```bash
+python "D:\ObsidianDB\_tech\scripts\auto_patch_docling.py"
+```
+
+Если скрипт сообщает «F1 fix already applied» — продолжай.
+Если «F1 fix applied successfully» — патч только что наложен, продолжай.
+Если «ERROR» — ручная проверка, сообщи пользователю.
+
+**Зачем**: `uv tool install --reinstall 3gpp-crawler` сбрасывает патч. Без него Docling крашится с `std::bad_alloc` на страницах с диаграммами.
 
 ## Два метода извлечения
 
@@ -60,19 +74,48 @@ spec-crawler crawl 31.102
 # Шаг 4: Скопировать результаты в specs-extracted/3GPP/<номер>/<релиз>/
 ```
 
+### Метод C: Прямой .docx extract (НОВЫЙ — 750× быстрее)
+
+**Для файлов .docx из spec-crawler checkout — извлекай напрямую, без LibreOffice+PDF цепочки!**
+
+.docx — это ZIP-архив XML. Весь текст + таблицы читаются мгновенно.
+
+```bash
+# Извлечь ОДИН .docx (plain text + MD таблицы):
+python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+
+# Извлечь ВСЕ .docx в Specifications/:
+python "D:\ObsidianDB\_tech\scripts\extract_docx.py" --tables
+```
+
+**Результат**:
+- `specs-extracted/<тема>/<имя>.txt` — plain text (для Reviewer Pass 1 Grep)
+- `specs-extracted/<тема>/<имя>.md` — **таблицы в Markdown** (ключевое!)
+
+**Преимущества** над LibreOffice→PDF→PyPDF2:
+- **750× быстрее** (0.2 сек vs 2.5 мин на TS 31.102)
+- **Таблицы сохранены** (509 таблиц в TS 31.102 R16 .docx — PyPDF2 их разрушал)
+- **Только Python stdlib** (zipfile + re, без LibreOffice/pypdfium2/Docling)
+- **Нет bad_alloc** риска
+
+**Для .doc (бинарных)**: используй LibreOffice→PDF→PyPDF2 (Метод A).
+
 ## Рабочий процесс (общий)
 
-### Шаг 1: Классификация PDF
+### Шаг 1: Классификация файла
 
-Определи тип спецификации:
-- **3GPP TS/TR** (номер вида xx.xxx) → Метод B (Docling) + Метод A (PyPDF2 fallback)
-- **ETSI TS** (номер 1xx.xxx) → Метод A (PyPDF2), Метод B если номер есть в spec-crawler
-- **GSMA, ISO, GP, Books, Manuals, Papers, Tutorials** → Метод A (PyPDF2)
+Определи тип:
+- **.docx файл** (spec-crawler checkout) → **Метод C** (прямой extract_docx.py) — всегда в первую очередь
+- **3GPP TS/TR PDF** (номер вида xx.xxx) → Метод B (Docling) + Метод A (PyPDF2 fallback)
+- **ETSI TS PDF** (номер 1xx.xxx) → Метод A (PyPDF2), Метод B если номер есть в spec-crawler
+- **GSMA, ISO, GP, Books, Manuals, Papers, Tutorials PDF** → Метод A (PyPDF2)
+- **.doc файл** (бинарный) → LibreOffice → PDF → Метод A (PyPDF2)
 
 ### Шаг 2: Извлечение
 
-Для каждого PDF запусти соответствующий метод.
-**Всегда сохраняй PyPDF2 TXT как fallback**, даже если Docling тоже используется.
+Для каждого файла запусти соответствующий метод.
+**Всегда сохраняй PyPDF2 TXT как fallback**, даже если Docling или .docx extract тоже используется.
+**Для .docx — всегда запускай extract_docx.py --tables** (таблицы — ключевой resource для Reviewer).
 
 ### Шаг 3: Сохранение в specs-extracted/
 
@@ -166,12 +209,37 @@ profile: default
 }
 ```
 
+### Прямой .docx (Метод C)
+```markdown
+# Tables from 31_102-REL16_31102-gf0.docx
+
+## Table 30
+| Identifier: '6F46' | Structure: transparent | Optional |
+| File Size: 17 bytes | Update activity: low |
+| Access Conditions: READ ALWAYS, UPDATE ADM |
+| Bytes 1: Display Condition, 2-17: Service Provider Name |
+
+## Table 176
+| Identifier: '6FDE' | Structure: transparent | Optional |
+| Bytes 1 to X: Icon TLV object(s) |
+```
+509 таблиц извлечено из одного .docx — Reviewer видит ВСЕ EF структуры мгновенно.
+
 ---
+
+## Сводка методов извлечения
+
+| Метод | Формат | Скорость | Таблицы | Зависимости |
+|---|---|---|---|
+| **C** — extract_docx.py | .docx | 0.2 сек | Сохранены | Python stdlib |
+| **A** — PyPDF2 | .pdf (все) | 15-60 сек | Разрушены | PyPDF2 |
+| **B** — Docling | .pdf (3GPP) | 1.5 мин GPU | Сохранены | Docling + spec-crawler |
 
 ## Важно
 
-- **Всегда сохраняй PyPDF2 TXT как fallback** — Reviewer Pass 1 Grep всё ещё самый быстрый для FID/CLA
+- **.docx файлы — всегда Метод C первым** (`extract_docx.py --tables`). Таблицы — ключевой resource.
+- **Всегда сохраняй PyPDF2 TXT как fallback** — Reviewer Pass 1 Grep самый быстрый для FID/CLA
 - Docling **МОЖЕТ упасть с OOM** на PDF >200 стр. при `images_scale=1.5` — используй `images_scale=1.0` или fallback на PyPDF2
-- Только PDF, HTML и крупные TXT. Мелкие файлы (.md, links.txt) — не извлекать
+- Только PDF, .docx, HTML и крупные TXT. Мелкие файлы (.md, links.txt) — не извлекать
 - НЕ изменять оригиналы в Specifications/
 - Если PDF защищён — отметить в INDEX.md и .meta.json

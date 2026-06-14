@@ -1,7 +1,7 @@
 ---
 tags: [synthesis, authentication, GSM, UMTS, LTE, 5G, AKA, COMP128]
 created: 2026-06-10
-updated: 2026-06-12
+updated: 2026-06-14
 status: reviewed
 sources:
   - "[[wiki/summaries/ts_102221]]"
@@ -9,6 +9,13 @@ sources:
   - "[[wiki/summaries/gsm_1111]]"
   - "[[wiki/concepts/UICC_Security]]"
   - "[[wiki/concepts/USIM]]"
+  - "3GPP TS 33.102 (3G Security Architecture)"
+  - "3GPP TS 33.401 (EPS AKA)"
+  - "3GPP TS 33.501 (5G Security)"
+  - "3GPP TS 35.205 (MILENAGE Algorithm)"
+  - "3GPP TS 35.206 (MILENAGE Test Vectors)"
+  - "3GPP TS 35.231 (TUAK Algorithm)"
+  - "3GPP TS 35.232 (TUAK Test Vectors)"
 ---
 
 # Evolution of Authentication: From COMP128 to 5G AKA
