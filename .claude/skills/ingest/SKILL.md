@@ -26,7 +26,7 @@ Agent: Author v2 — пакетная обработка <путь-к-PDF>
 
 Для **.docx файла** — Tier 1 (основной путь, 0.2 сек):
 ```bash
-python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь>" --tables
+python -m _pipeline extract docx "<путь>" --tables
 → specs-extracted/<категория>/*.txt (plain для grep)
 → specs-extracted/<категория>/*.md (ТАБЛИЦЫ — ключевой resource для Reviewer!)
 ```

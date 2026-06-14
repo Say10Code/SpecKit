@@ -1,7 +1,7 @@
 # Skill: spec-download
 # Trigger: /spec-download
 
-Скачивание спецификаций 3GPP/ETSI через `spec-crawler` напрямую в `!INCOMING/` и запуск полного пайплайна обработки.
+Скачивание спецификаций 3GPP/ETSI через speckit (`_pipeline/`) напрямую в `!INCOMING/` и запуск полного пайплайна обработки.
 
 ## Синтаксис
 
@@ -28,15 +28,13 @@
 ### Шаг 1: Обновить метаданные
 
 ```bash
-cd "D:\ObsidianDB"
-spec-crawler crawl 31.102 102.221 ...
+python -m _pipeline metadata fetch 31.102 102.221 ...
 ```
 
 ### Шаг 2: Скачать в !INCOMING
 
 ```bash
-cd "D:\ObsidianDB"
-spec-crawler checkout 31.102 102.221 ... --checkout-dir "D:\ObsidianDB\Specifications\!INCOMING" [--release 18.0]
+python -m _pipeline download 31.102 102.221 ... [--release 18.0]
 ```
 
 ### Шаг 3: Librarian — flatten и сортировка
@@ -70,10 +68,10 @@ spec-crawler checkout 31.102 102.221 ... --checkout-dir "D:\ObsidianDB\Specifica
 
 ### Шаг 5: SpecExtractor — Tier 1 (.docx) или Tier 2/3 (PDF)
 
-**Для .docx файлов (spec-crawler checkout)** — основной путь, Tier 1:
+**Для .docx файлов** — основной путь, Tier 1:
 
 ```bash
-python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+python -m _pipeline extract docx "<путь-к-.docx>" --tables
 → specs-extracted/<категория>/*.txt (plain, grep)
 → specs-extracted/<категория>/*.md (таблицы, структурировано)
 ```
@@ -106,7 +104,7 @@ Agent: SpecExtractor — извлеки <путь-к-PDF>
 
 - Уже существующие в `Specifications/` (проверь перед checkout)
 - Уже лежащие в `!double/` (дубликаты)
-- GSMA/ISO/GP спецификации (spec-crawler их не найдёт)
+- GSMA/ISO/GP спецификации (_pipeline их не найдёт)
 
 ## Отчёт после выполнения
 

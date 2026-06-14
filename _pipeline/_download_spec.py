@@ -1,6 +1,6 @@
-"""Download 3GPP specs from FTP into !INCOMING/ with spec-crawler-compatible structure.
+"""Download 3GPP specs from FTP into !INCOMING/.
 
-Mirrors the output of `spec-crawler checkout` so Librarian needs zero changes.
+Mirrors the output structure so Librarian needs zero changes.
 """
 
 import shutil
@@ -44,9 +44,9 @@ def download_spec(
 
     print(f"  Found: {dotted} v{rel.version} ({rel.release_label}) — {rel.docx_filename}")
 
-    # Build checkout path (spec-crawler compatible)
+    # Build checkout path
     #
-    # spec-crawler creates: !INCOMING/Specs/archive/<series>/<number>/<file>.docx
+    # Creates: !INCOMING/Specs/archive/<series>/<number>/<file>.docx
     # e.g.:  !INCOMING/Specs/archive/31_series/31.102/31102-j40.docx
     dest_dir = checkout / "Specs" / "archive" / series / dotted
     dest_dir.mkdir(parents=True, exist_ok=True)

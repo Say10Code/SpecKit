@@ -2,6 +2,7 @@
 
 > **Назначение**: Техническая папка для архитектурного анализа, планов, отчётов и инструментов.
 > **НЕ участвует** в knowledge-пайплайне. НЕ индексируется в `wiki/`. НЕ ссылается из `wiki/`.
+> **Навигация**: [[INDEX.md]] — полный индекс инженерных документов.
 
 ---
 
@@ -57,6 +58,7 @@
 - После выполнения: задача перемещается в «Завершённые задачи» (НЕ удаляется)
 - Хронология сессий: дата + имя сессии + что выполнено + ключевые вехи
 - Никогда не закрывай сессию с устаревшим беклогом
+- Проставлять общую дату сохранения файла в шапке вверху (внесение изменений)
 
 ---
 
@@ -67,14 +69,17 @@
 | Архитектура (актуально) | [[_tech/architecture/ARCHITECTURE-v3.md\|ARCHITECTURE-v3.md]] |
 | Предыдущая архитектура | [[_tech/architecture/archive/ARCHITECTURE-v2.md\|v2]] |
 | Активный беклог | [[_tech/BACKLOG.md\|BACKLOG.md]] |
-| План консолидации (speckit) | [[_tech/plans/consolidation-plan.md\|Consolidation plan]] |
+| План консолидации (speckit) | [[_tech/plans/consolidation-plan.md\|Consolidation plan]] (v3, 70% реализовано) |
 | Batch Authoring анализ | [[_tech/reports/batch-authoring-analysis.md\|Batch Authoring]] |
 | Сравнение консолидации | [[_tech/reports/consolidation-comparison.md\|Consolidation comparison]] |
 | Архитектурный deep-research | [[_tech/reports/architecture-deep-research-report.md\|Architecture audit]] |
 | Прямое .docx извлечение | [[_tech/reports/direct-docx-extraction-analysis.md\|.docx analysis]] |
 | Pipeline bottleneck анализ | [[_tech/reports/pipeline-bottleneck-analysis.md\|Pipeline analysis]] |
-| Интеграция 3gpp-crawler | [[_tech/plans/3gpp-crawler-build-integration-plan.md\|Build plan]] |
-| Миграция specs-extracted | [[_tech/plans/specs-extracted-migration-plan.md\|Migration plan]] |
+| Архив: build integration | [[_tech/plans/archive/3gpp-crawler-build-integration-plan.md\|Build plan]] |
+| Архив: 3gpp-crawler интеграция | [[_tech/plans/archive/3gpp-crawler-integration-plan.md\|Integration vision]] |
+| Архив: improvement plan | [[_tech/plans/archive/IMPROVEMENT_PLAN.md\|Improvement snapshot]] |
+| Архив: specs-extracted миграция | [[_tech/plans/archive/specs-extracted-migration-plan.md\|Migration plan]] |
+| Архив: directory architecture | [[_tech/plans/archive/specs-directory-architecture.md\|Dir architecture]] |
 | Аудит связности (последний) | [[_tech/reports/connectivity-audit-2026-06-14.md\|Connectivity audit]] |
 | Quality metrics (последний) | [[_tech/reports/quality-metrics-2026-06-14.md\|Quality metrics]] |
 | Review — operator_icons | [[_tech/reports/review-operator_icons_on_sim.md\|Operator icons review]] |
@@ -84,20 +89,21 @@
 
 ## Инвентаризация скриптов
 
-| Скрипт | Назначение | Tier |
+| Скрипт | Назначение | Вызывается |
 |---|---|---|
-| `quality_metrics.py` | 8 категорий метрик + history JSON | Аналитика |
-| `audit_connectivity.py` | Граф-анализ wikilinks (/lint --deep) | Аналитика |
-| `check_frontmatter.py` | Валидация YAML frontmatter (yaml.safe_load) | Качество |
-| `extract_docx.py` | Tier 1: .docx → TXT + MD таблицы (stdlib) | Извлечение |
-| `docling_migrate.py` | Tier 2: PDF → Docling MD+JSON (GPU) | Извлечение |
-| `docling_batch_etsi.py` | Устарел — заменён docling_migrate.py | Извлечение |
-| `auto_patch_docling.py` | F1 fix для docling (try/except bad_alloc) | Инфра |
-| `bench_cpu_vs_gpu.py` | Бенчмарк CPU vs GPU (B3) | Диагностика |
-| `diagnose_badalloc.py` | Анализ std::bad_alloc в Docling | Диагностика |
-| `verify_f1f2_quality.py` | Верификация F1/F2 фиксов | Диагностика |
-| `build_html.py` | HTML-отчёты (Formatter) | Экспорт |
-| `convert_research.py` | Конвертация research-страниц | Экспорт |
+| `backup_data.py` | Бэкап Data-слоя в ZIP с манифестом | Вручную / cron |
+| `sync_data.py` | Синхронизация Data между проектами | Вручную |
+| `quality_metrics.py` | 8 категорий метрик + history JSON | `/roadmap` |
+| `audit_connectivity.py` | Граф-анализ wikilinks | `/lint --deep` |
+| `check_frontmatter.py` | Валидация YAML frontmatter (yaml.safe_load) | Вручную / quality_metrics |
+| `auto_patch_docling.py` | F1 fix для docling (try/except bad_alloc) | SpecExtractor (pre-flight) |
+| `docling_migrate.py` | Пакетная миграция PDF → Docling MD+JSON (GPU) | Вручную |
+| `bench_cpu_vs_gpu.py` | Бенчмарк CPU vs GPU — проверка CUDA | Вручную (диагностика) |
+| `build_html.py` | Пакетный экспорт wiki/ → HTML | Вручную |
+
+> **Примечание**: `extract_docx.py` перенесён в `_pipeline/extract_docx.py` (speckit). Вызов: `python -m _pipeline extract docx`.
+
+> **Удалены** (2026-06-14): `diagnose_badalloc.py`, `docling_batch_etsi.py`, `verify_f1f2_quality.py`, `convert_research.py` — одноразовые/устаревшие.
 
 ---
 
@@ -116,14 +122,15 @@
 | specs-extracted/ | 78 TXT + 86 MD + 73 JSON |
 | Torch CUDA | ✅ RTX 3060 (11 GB), 2.4-4.2× CPU |
 | .venv (uv sync) | ✅ docling + torch (CUDA) + httpx + PyPDF2 + rich |
-| _pipeline/ (speckit) | 7 модулей: resolve_spec, metadata_db, download_spec, extract_docx/docling/pypdf2, cli |
-| 3gpp-crawler | ✅ Интегрирован (+ auto_patch_docling.py) |
+| _pipeline/ (speckit) | ✅ 10 модулей, 5 CLI-команд, GPU активен |
+| 3gpp-crawler | 🗑️ Декомиссия выполнена (2026-06-14) |
+| .speckit/ | ✅ Кэш метаданных (бывш. .3gpp-crawler) |
 | Quality Score | **98/100 (A)** |
 | Git | ✅ 6 коммитов |
 | GitHook (PostToolUse) | ✅ Напоминание /lint |
 | Frontmatter validator | 0 ошибок, 58 warnings (yaml.safe_load) |
-| Graphify | Граф 7,410 узлов, 19,407 связей, 364 сообщества |
-| Беклог | 43/45 задач завершено (0 P0, 0 P1, 0 P2, 2 P3) |
+| Graphify | Граф 7,580 узлов, 19,645 рёбер, 380 сообществ (2026-06-14) |
+| Беклог | 49/55 задач завершено (0 P0, 0 P1, 1 P2, 3 P3, 2 P4) |
 
 ---
 
@@ -143,4 +150,4 @@
 
 ---
 
-*Обновлено: 2026-06-14 09:00. Архитектура: v3. Беклог: 43/45.*
+*Обновлено: 2026-06-14 15:30. Архитектура: v3. Беклог: 52/57. speckit: 100%. Навигация: [[INDEX.md]].*

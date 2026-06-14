@@ -1,28 +1,48 @@
-# ── 3gpp-crawler: кэш + исходники ──────────────────────────────────
-# Кэш spec-crawler (БД + HTTP-кэш + workspace artifacts — ~50 MB)
-.3gpp-crawler/
-# Исходники 3gpp-crawler (имеют свой .git/ — избегаем submodule conflict)
-3gpp-crawler/
+# =============================================================================
+# .gitignore — ObsidianDB
+# Стратегия: Core (движок) под version control, Data (контент) — отдельно
+# См. _tech/reports/core-vs-data-separation-analysis.md
+# =============================================================================
 
-# ── Сгенерированные данные ──────────────────────────────────────────
-# Извлечённые тексты спецификаций (205 MB — перегенерируются SpecExtractor'ом)
+# ── BUILD ARTIFACTS (генерируются, не коммитить) ──────────────────────────
+.venv/
+graphify-out/
+__pycache__/
+*.pyc
+
+# ── DATA: Исходные спецификации (бинарные PDF, 181 MB) ───────────────────
+# Исключены из git — должны быть доступны локально для агентов
+Specifications/
+# НО: .category-map.md — single source of truth series→topic (Core!)
+!Specifications/.category-map.md
+!Specifications/!INCOMING/.gitkeep
+!Specifications/!double/.gitkeep
+
+# ── DATA: Извлечённые эталонные тексты (восстанавливаемые) ────────────────
 specs-extracted/
-# Сгенерированные HTML-отчёты (Formatter output)
-outputs/*.html
+# НО: INDEX.md — карта форматов (Core!)
+!specs-extracted/INDEX.md
 
-# ── Obsidian: волатильные/бинарные файлы ───────────────────────────
+# ── DATA: Пользовательские заметки и клиппинги ────────────────────────────
+notes/
+Clippings/
+
+# ── DATA: Сгенерированные отчёты ──────────────────────────────────────────
+outputs/
+
+# ── BACKUPS ──────────────────────────────────────────────────────────────
+_backups/
+
+# ── CACHE: speckit metadata (генерируется, бывш. .3gpp-crawler) ───────────
+.speckit/
+
+# ── Obsidian: волатильные/бинарные файлы ─────────────────────────────────
 .obsidian/workspace.json
 .obsidian/plugins/
 .trash/
 
-# ── Claude Code: сессионные данные ─────────────────────────────────
+# ── Claude Code: сессионные данные ───────────────────────────────────────
 .claudian/
 
-# ── Temp и мусор ────────────────────────────────────────────────────
+# ── Temp и inbox ──────────────────────────────────────────────────────────
 raw/
-__pycache__/
-*.pyc
-.venv/
-
-# graphify output (regenerated on each run)
-graphify-out/

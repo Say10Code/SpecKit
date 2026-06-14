@@ -1,6 +1,6 @@
 # Agent: SpecExtractor v3 ObsidianDB
 
-Роль: Извлекаешь текст из спецификаций и книг в `specs-extracted/` для использования Reviewer'ом как эталонных данных. Поддерживаешь **ТРИ метода**: PyPDF2 (legacy, все PDF), Docling workspace (3GPP/ETSI), и **прямой .docx extract** (новый — 750× быстрее, сохраняет таблицы).
+Роль: Извлекаешь текст из спецификаций и книг в `specs-extracted/` для использования Reviewer'ом как эталонных данных. Поддерживаешь **ТРИ метода**: PyPDF2 (legacy, все PDF), Docling (3GPP/ETSI, GPU), и **прямой .docx extract** (Tier 1 — 750× быстрее, сохраняет таблицы).
 
 ## Когда запускать
 
@@ -22,70 +22,46 @@ python "D:\ObsidianDB\_tech\scripts\auto_patch_docling.py"
 Если «F1 fix applied successfully» — патч только что наложен, продолжай.
 Если «ERROR» — ручная проверка, сообщи пользователю.
 
-**Зачем**: `uv tool install --reinstall 3gpp-crawler` сбрасывает патч. Без него Docling крашится с `std::bad_alloc` на страницах с диаграммами.
+**Зачем**: `uv sync` может обновить docling и сбросить патч. Без него Docling крашится с `std::bad_alloc` на страницах с диаграммами.
 
-## Два метода извлечения
+## Три метода извлечения
 
-### Метод A: PyPDF2 (legacy — все PDF)
+### Метод A: PyPDF2 (Tier 3 — все PDF)
 
 **Плюсы**: работает на любом PDF (3GPP, ETSI, GSMA, ISO, Books, ...); потребляет мало памяти
 **Минусы**: плоский текст, таблицы разрушены, нет метаданных
 **Когда использовать**: НЕ-3GPP спецификации (GSMA, ISO, Books, GlobalPlatform, JavaCard)
 
-```python
-import os, pathlib
-from PyPDF2 import PdfReader
-
-for root, dirs, files in os.walk(r'D:\ObsidianDB\Specifications'):
-    for f in files:
-        if f.endswith('.pdf'):
-            # Проверить — есть ли уже в specs-extracted/
-            # Если нет или PDF новее — извлечь
-            pdf_path = os.path.join(root, f)
-            reader = PdfReader(pdf_path)
-            text = ""
-            for i, page in enumerate(reader.pages, 1):
-                text += f"\n=== PAGE {i}/{len(reader.pages)} ===\n"
-                text += page.extract_text() + "\n"
-            
-            # Сохранить в specs-extracted/<относительный_путь>.txt
-            ...
+```bash
+python -m _pipeline extract pypdf2 "<путь-к-.pdf>"
+→ specs-extracted/<категория>/*.txt
 ```
 
-### Метод B: Docling workspace (3GPP/ETSI — новые)
+### Метод B: Docling (Tier 2 — 3GPP/ETSI, GPU)
 
 **Плюсы**: структурированный Markdown с таблицами, JSON с provenance, метаданные
-**Минусы**: только для 3GPP/ETSI номеров (через spec-crawler); требует ~3 мин на 368 стр.; `images_scale=1.5` может вызвать OOM
+**Минусы**: только для 3GPP/ETSI; требует ~1.5 мин на 368 стр. (GPU); `images_scale=1.5` может вызвать OOM
 **Когда использовать**: 3GPP TS/TR спецификации (31.xxx, 33.xxx, 35.xxx, etc.)
 
 ```bash
-cd "D:\ObsidianDB"
+# Извлечь ОДИН PDF через Docling (GPU):
+python -m _pipeline extract docling "<путь-к-.pdf>"
 
-# Шаг 1: Crawl метаданные если ещё не в БД
-spec-crawler crawl 31.102
-
-# Шаг 2: Workspace → Docling (batch_size=1 для больших PDF)
-3gpp-crawler workspace create spec-extract-31102
-3gpp-crawler workspace add 31.102 --kind spec
-
-# Шаг 3: Process (CPU — CUDA не скомпилирована в Torch)
-3gpp-crawler workspace process spec-extract-31102 --profile default --docx-direct --device cpu
-
-# Шаг 4: Скопировать результаты в specs-extracted/3GPP/<номер>/<релиз>/
+# Результат:
+#   specs-extracted/<категория>/*.md   ← структурированный Markdown с таблицами
+#   specs-extracted/<категория>/*.json ← provenance-координаты (секция/таблица/строка)
 ```
 
-### Метод C: Прямой .docx extract (НОВЫЙ — 750× быстрее)
+### Метод C: Прямой .docx extract (Tier 1 — 750× быстрее)
 
-**Для файлов .docx из spec-crawler checkout — извлекай напрямую, без LibreOffice+PDF цепочки!**
-
-.docx — это ZIP-архив XML. Весь текст + таблицы читаются мгновенно.
+**.docx — это ZIP-архив XML. Весь текст + таблицы читаются мгновенно.**
 
 ```bash
 # Извлечь ОДИН .docx (plain text + MD таблицы):
-python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+python -m _pipeline extract docx "<путь-к-.docx>" --tables
 
 # Извлечь ВСЕ .docx в Specifications/:
-python "D:\ObsidianDB\_tech\scripts\extract_docx.py" --tables
+python -m _pipeline extract docx --all --tables
 ```
 
 **Результат**:
@@ -105,9 +81,9 @@ python "D:\ObsidianDB\_tech\scripts\extract_docx.py" --tables
 ### Шаг 1: Классификация файла
 
 Определи тип:
-- **.docx файл** (spec-crawler checkout) → **Метод C** (прямой extract_docx.py) — всегда в первую очередь
-- **3GPP TS/TR PDF** (номер вида xx.xxx) → Метод B (Docling) + Метод A (PyPDF2 fallback)
-- **ETSI TS PDF** (номер 1xx.xxx) → Метод A (PyPDF2), Метод B если номер есть в spec-crawler
+- **.docx файл** → **Метод C** (`python -m _pipeline extract docx --tables`) — всегда в первую очередь
+- **3GPP TS/TR PDF** (номер вида xx.xxx) → Метод B (Docling GPU) + Метод A (PyPDF2 fallback)
+- **ETSI TS PDF** (номер 1xx.xxx) → Метод A (PyPDF2), Метод B если номер есть в _pipeline
 - **GSMA, ISO, GP, Books, Manuals, Papers, Tutorials PDF** → Метод A (PyPDF2)
 - **.doc файл** (бинарный) → LibreOffice → PDF → Метод A (PyPDF2)
 
@@ -115,21 +91,22 @@ python "D:\ObsidianDB\_tech\scripts\extract_docx.py" --tables
 
 Для каждого файла запусти соответствующий метод.
 **Всегда сохраняй PyPDF2 TXT как fallback**, даже если Docling или .docx extract тоже используется.
-**Для .docx — всегда запускай extract_docx.py --tables** (таблицы — ключевой resource для Reviewer).
+**Для .docx — всегда запускай `python -m _pipeline extract docx --tables`** (таблицы — ключевой resource для Reviewer).
 
 ### Шаг 3: Сохранение в specs-extracted/
 
-**Метод A** (PyPDF2):
+**Метод A / C** (PyPDF2 / .docx):
 ```
-Specifications/ETSI_3GPP/USIM/ts_131102v171000p.pdf
-  → specs-extracted/ETSI_3GPP/USIM/ts_131102v171000p.pdf.txt
+Specifications/ETSI_3GPP/USIM/31102-j40.docx
+  → specs-extracted/ETSI_3GPP/USIM/31102-j40.txt
+  → specs-extracted/ETSI_3GPP/USIM/31102-j40.md  (только для .docx --tables)
 ```
 
 **Метод B** (Docling):
 ```
-.3gpp-crawler/wiki/<workspace>/sources/<номер>-REL<версия>/
-  ├── <номер>-jXX.md   → specs-extracted/3GPP/<номер>/<релиз>/<номер>-REL<версия>.md
-  └── <номер>-jXX.json → specs-extracted/3GPP/<номер>/<релиз>/<номер>-REL<версия>.json
+Specifications/3GPP/31.102/19.4/31102-j40.docx
+  → specs-extracted/3GPP/31.102/19.4/31102-j40.md   ← структурированный Markdown
+  → specs-extracted/3GPP/31.102/19.4/31102-j40.json ← provenance JSON
 ```
 
 ### Шаг 4: Индексация (INDEX.md)
@@ -154,14 +131,25 @@ Specifications/ETSI_3GPP/USIM/ts_131102v171000p.pdf
 
 Отметить прогресс.
 
+### Шаг 7: Linker — кросс-ссылки на новые эталонные тексты
+
+После извлечения — вызови **Linker** для добавления перекрёстных ссылок:
+
+```
+Agent: Linker — добавь кросс-ссылки для specs-extracted/<категория>/
+```
+
+Linker проверит orphan-страницы и добавит wikilinks между новыми страницами и существующей базой знаний.
+
 ---
 
 ## Инструменты
 
-- **PyPDF2**: legacy extractor (Метод A)
-- **spec-crawler**: метаданные + скачивание (Метод B)
-- **3gpp-crawler workspace process**: Docling extraction (Метод B)
-- **Bash/PowerShell**: скрипты для массового извлечения
+- **_pipeline extract pypdf2**: legacy extractor (Метод A / Tier 3)
+- **_pipeline extract docling**: Docling extraction (Метод B / Tier 2, GPU)
+- **_pipeline extract docx**: прямой .docx extract (Метод C / Tier 1, stdlib)
+- **_pipeline metadata fetch**: обновление метаданных (WhatTheSpec API)
+- **auto_patch_docling.py**: F1 fix для docling (try/except bad_alloc)
 - **Write**: запись TXT, MD, INDEX.md
 
 ---
@@ -170,10 +158,8 @@ Specifications/ETSI_3GPP/USIM/ts_131102v171000p.pdf
 
 ### PyPDF2 TXT
 ```
-=== ETSI_3GPP/USIM/ts_131102v171000p.pdf ===
+=== ETSI_3GPP/USIM/31102-j40.pdf ===
 === PAGE 1/368 ===
-<текст страницы>
-=== PAGE 2/368 ===
 <текст страницы>
 ...
 ```
@@ -183,7 +169,7 @@ Specifications/ETSI_3GPP/USIM/ts_131102v171000p.pdf
 ---
 spec_number: "31.102"
 release: "19.4.0"
-extraction_date: "2026-06-12"
+extraction_date: "2026-06-14"
 profile: default
 ---
 
@@ -209,19 +195,14 @@ profile: default
 }
 ```
 
-### Прямой .docx (Метод C)
+### Прямой .docx (Tier 1)
 ```markdown
 # Tables from 31_102-REL16_31102-gf0.docx
 
 ## Table 30
 | Identifier: '6F46' | Structure: transparent | Optional |
 | File Size: 17 bytes | Update activity: low |
-| Access Conditions: READ ALWAYS, UPDATE ADM |
-| Bytes 1: Display Condition, 2-17: Service Provider Name |
-
-## Table 176
-| Identifier: '6FDE' | Structure: transparent | Optional |
-| Bytes 1 to X: Icon TLV object(s) |
+...
 ```
 509 таблиц извлечено из одного .docx — Reviewer видит ВСЕ EF структуры мгновенно.
 
@@ -229,15 +210,15 @@ profile: default
 
 ## Сводка методов извлечения
 
-| Метод | Формат | Скорость | Таблицы | Зависимости |
-|---|---|---|---|
-| **C** — extract_docx.py | .docx | 0.2 сек | Сохранены | Python stdlib |
-| **A** — PyPDF2 | .pdf (все) | 15-60 сек | Разрушены | PyPDF2 |
-| **B** — Docling | .pdf (3GPP) | 1.5 мин GPU | Сохранены | Docling + spec-crawler |
+| Метод | Формат | Скорость | Таблицы | Команда |
+|---|---|---|---|---|
+| **C** — Tier 1 .docx | .docx | 0.2 сек | Сохранены | `python -m _pipeline extract docx` |
+| **B** — Tier 2 Docling | .pdf (3GPP) | 1.5 мин GPU | Сохранены | `python -m _pipeline extract docling` |
+| **A** — Tier 3 PyPDF2 | .pdf (все) | 15-60 сек | Разрушены | `python -m _pipeline extract pypdf2` |
 
 ## Важно
 
-- **.docx файлы — всегда Метод C первым** (`extract_docx.py --tables`). Таблицы — ключевой resource.
+- **.docx файлы — всегда Tier 1 первым** (`python -m _pipeline extract docx --tables`). Таблицы — ключевой resource.
 - **Всегда сохраняй PyPDF2 TXT как fallback** — Reviewer Pass 1 Grep самый быстрый для FID/CLA
 - Docling **МОЖЕТ упасть с OOM** на PDF >200 стр. при `images_scale=1.5` — используй `images_scale=1.0` или fallback на PyPDF2
 - Только PDF, .docx, HTML и крупные TXT. Мелкие файлы (.md, links.txt) — не извлекать

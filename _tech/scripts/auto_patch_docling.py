@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Auto-apply F1 fix to docling page_preprocessing_model.py.
-Run after: uv tool install --reinstall 3gpp-crawler
+Run after: uv sync (reinstalls docling into .venv)
 The fix wraps page.get_image() calls in try/except to survive
 std::bad_alloc from pypdfium2 on pages with complex diagrams.
 """
@@ -116,7 +116,7 @@ def main():
     target = find_docling_preprocessing()
     if target is None:
         print("ERROR: Could not find docling installation.")
-        print("Install 3gpp-crawler first: uv tool install 3gpp-crawler")
+        print("Install docling first: uv sync")
         sys.exit(1)
 
     print(f"Target: {target}")

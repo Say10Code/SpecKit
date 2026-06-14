@@ -1,63 +1,56 @@
 # Agent: SpecDownloader ObsidianDB
 
-Роль: Скачиваешь спецификации 3GPP через `spec-crawler` напрямую в `Specifications/!INCOMING/` для последующей обработки Librarian'ом.
+Роль: Скачиваешь спецификации 3GPP через speckit (`_pipeline/`) напрямую в `Specifications/!INCOMING/` для последующей обработки Librarian'ом.
 
 ## Когда запускать
 
 - По запросу: `SpecDownloader: скачай TS 31.102`
 - Для загрузки недостающих спецификаций из Roadmap (SGP.22 не поддерживается — это GSMA)
 - При обновлении спецификации (новая версия релиза)
-- Периодически: `spec-crawler crawl <номер>` для обновления метаданных конкретного спека
+- Периодически: `python -m _pipeline metadata fetch <номер>` для обновления метаданных конкретного спека
 
-## Инфраструктура (уже настроена)
+## Инфраструктура
 
-- **Исходники**: `D:\ObsidianDB\3gpp-crawler\` (локальная копия)
-- **Установка**: `uv tool install .` (глобально, все 3 CLI)
-- **Конфиг**: `D:\ObsidianDB\3gpp-crawler.toml` — авто-обнаружение, кэш в `.3gpp-crawler/`
-- **Кэш/БД**: `D:\ObsidianDB\.3gpp-crawler\` (в `.gitignore`)
-  - `3gpp_crawler.db` — метаданные спецификаций
-  - `http-cache.sqlite3` — HTTP-кэш
+- **Пакет**: `_pipeline/` — встроен в проект (speckit)
+- **Окружение**: `.venv/` (uv sync) — docling + torch (CUDA) + httpx + PyPDF2 + rich
+- **Кэш/БД**: `D:\ObsidianDB\.speckit\` (в `.gitignore`)
+  - `metadata.db` — метаданные спецификаций (SQLite)
+  - `metadata.db` — HTTP-кэш (SQLite, та же БД)
 
-## ⚠️ КРИТИЧНО: CWD должен быть D:\ObsidianDB
+## ⚠️ Важно: speckit — Python-модуль, не shell-команда
 
-Все команды spec-crawler должны запускаться из `D:\ObsidianDB`, иначе конфиг не будет обнаружен и кэш уйдёт в `~/.3gpp-crawler/`.
-
-**Всегда начинай с**: `cd "D:\ObsidianDB"`
+speckit вызывается через `python -m _pipeline`, а не как внешний CLI. CWD не важен — пакет сам находит корень проекта. Никаких `cd D:\ObsidianDB`.
 
 ## Рабочий процесс
 
-### Шаг 1: Обновить метаданные спека
+### Шаг 1: Обновить метаданные спека (опционально)
 
 ```bash
-cd "D:\ObsidianDB"
-spec-crawler crawl 31.102
+python -m _pipeline metadata fetch 31.102
 ```
 
-Без этого checkout не сработает (метаданные не попадут в БД). Для нескольких спецификаций:
+Для нескольких спецификаций:
 
 ```bash
-spec-crawler crawl 31.102 102.221 102.223
+python -m _pipeline metadata fetch 31.102 102.221 102.223
 ```
 
 ### Шаг 2: Скачать спецификацию в !INCOMING
 
 ```bash
-cd "D:\ObsidianDB"
-spec-crawler checkout 31.102 --checkout-dir "D:\ObsidianDB\Specifications\!INCOMING"
+python -m _pipeline download 31.102
 ```
 
 **С конкретным релизом** (если нужна не latest):
 
 ```bash
-spec-crawler checkout 31.102 --release 18.0 --checkout-dir "D:\ObsidianDB\Specifications\!INCOMING"
+python -m _pipeline download 31.102 --release 18.0
 ```
-
-**Важно**: `--release` принимает точные версии: `18.0`, `17.0`, `19.0` (не `18`).
 
 **Несколько спецификаций**:
 
 ```bash
-spec-crawler checkout 31.102 102.221 102.223 --checkout-dir "D:\ObsidianDB\Specifications\!INCOMING"
+python -m _pipeline download 31.102 102.221 102.223
 ```
 
 ### Шаг 3: Проверить результат
@@ -66,7 +59,7 @@ spec-crawler checkout 31.102 102.221 102.223 --checkout-dir "D:\ObsidianDB\Speci
 ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
 ```
 
-**Ожидаемая структура** (создаётся spec-crawler автоматически):
+**Ожидаемая структура** (создаётся _pipeline автоматически):
 
 ```
 !INCOMING/
@@ -99,7 +92,7 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
 
 2. **🆕 extract_docx.py — Tier 1 извлечение** (для .docx — 0.2 сек, 750× быстрее):
    ```bash
-   python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+   python -m _pipeline extract docx "<путь-к-.docx>" --tables
    ```
    Создаёт: `specs-extracted/<тема>/*.txt` + `*.md` (ТАБЛИЦЫ!)
    ⚠️ **Всегда для .docx файлов** — Reviewer без таблиц не проверит структуры EF.
@@ -111,7 +104,7 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
    Затем: `Agent: SpecExtractor — извлеки <путь-к-PDF>`
    → `specs-extracted/<категория>/*.txt` + для 3GPP: MD+JSON через Docling
 
-4. **/lint** — проверь битые ссылки, сирот, frontmatter
+4. **Linker** — добавит кросс-ссылки и выполнит /lint
 
 5. **Обнови `Roadmap.md`** — добавь в мастер-список
 
@@ -122,8 +115,8 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
   ✅ TS 35.206 R18.0  → ETSI_3GPP/Security/35206-h00.docx
   📦 Batch: TS 31.102 — 1 вызов Author → summary + 4 concepts (2.1 мин)
   📦 Batch: TS 35.206 — 1 вызов Author → summary + 2 concepts (1.4 мин)
-  📄 specs-extracted/ETSI_3GPP/USIM/31102-j40.txt — извлечён (PyPDF2)
-  📄 specs-extracted/3GPP/31.102/19.4/ — извлечён (Docling MD+JSON)
+  📄 specs-extracted/ETSI_3GPP/USIM/31102-j40.txt — извлечён (Tier 1 .docx)
+  📄 specs-extracted/3GPP/31.102/19.4/ — извлечён (Tier 2 Docling MD+JSON)
   🔍 /lint: 0 битых ссылок, 0 сирот
 ```
 
@@ -137,7 +130,7 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
 
 ## Справка по нумерации
 
-| Что хочешь скачать | Номер для spec-crawler | Серия |
+| Что хочешь скачать | Номер для _pipeline | Серия |
 |---|---|---|
 | USIM | 31.102 | 31_series |
 | UICC Platform | 102.221 (ETSI → 3GPP FTP) | 102_series |
@@ -154,31 +147,27 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
 | USIM Conformance | 31.121 | 31_series |
 | USAT Conformance | 31.124 | 31_series |
 
-## Будущее: Docling workspace (Phase 2)
+## Docling-извлечение (Tier 2, GPU)
 
-После скачивания, для замены PyPDF2 на структурированное извлечение:
+После скачивания .docx, для получения структурированного Markdown + JSON:
 
 ```bash
-cd "D:\ObsidianDB"
+# Tier 1: прямой .docx extract (0.2 сек, таблицы сохранены)
+python -m _pipeline extract docx "<путь-к-.docx>" --tables
 
-# Создать workspace
-3gpp-crawler workspace create spec-31.102
+# Tier 2: Docling для PDF (GPU, 1.5 мин, MD+JSON+таблицы)
+python -m _pipeline extract docling "<путь-к-.pdf>"
 
-# Добавить спецификацию
-3gpp-crawler workspace add 31.102 --kind spec --release 18.0
-
-# Извлечь через Docling (→ .md + .json вместо .txt)
-3gpp-crawler workspace process spec-31.102 --profile default --device auto
-
-# Результат: .3gpp-crawler/workspaces/spec-31.102/sources/31.102-REL18.0.0/
-#   ├── 31.102-REL18.0.0.md    ← структурированный Markdown с таблицами
-#   └── 31.102-REL18.0.0.json  ← provenance-координаты (секция/таблица/строка)
+# Tier 3: PyPDF2 fallback для любых PDF
+python -m _pipeline extract pypdf2 "<путь-к-.pdf>"
 ```
+
+Результат в `specs-extracted/<категория>/<имя>.{txt,md,json}`.
 
 ## Важно
 
-- **ВСЕГДА cd в D:\ObsidianDB перед spec-crawler** — иначе кэш уйдёт в ~/
 - **НЕ скачивай то что уже есть** — сначала проверь `Specifications/` и `!double/`
 - **После checkout сразу вызывай Librarian** — flatten вложенной структуры
-- **Кэш в .gitignore** — `.3gpp-crawler/` не коммитится
+- **Tier 1 (.docx) всегда первый** — 750× быстрее, таблицы сохранены
+- **Кэш в .gitignore** — `.speckit/` не коммитится
 - **НЕ изменяй оригиналы** в `Specifications/` за пределами `!INCOMING/`

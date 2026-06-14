@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Cache directory (metadata DB + HTTP cache)
-CACHE_DIR = ROOT / ".3gpp-crawler"  # reuse existing cache dir name
+CACHE_DIR = ROOT / ".speckit"  # migrated from .3gpp-crawler (2026-06-14)
 
 # Where downloaded specs land (Librarian expects this structure)
 CHECKOUT_DIR = ROOT / "Specifications" / "!INCOMING"

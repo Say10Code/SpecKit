@@ -11,8 +11,8 @@
 └── ts_102221v180200p.pdf
 ```
 
-### Путь B: spec-crawler checkout (новый)
-SpecDownloader вызывает `spec-crawler checkout`, который создаёт вложенную структуру:
+### Путь B: _pipeline download (speckit)
+SpecDownloader вызывает `python -m _pipeline download`, который создаёт вложенную структуру:
 ```
 !INCOMING/
 └── Specs/
@@ -38,7 +38,7 @@ SpecDownloader вызывает `spec-crawler checkout`, который созд
 2. Если дубликат → перемести в `Specifications/!double/`
 3. Если новый → переходи к Шагу 3 (сортировка)
 
-### Шаг 2Б: Обработка spec-crawler checkout (путь B)
+### Шаг 2Б: Обработка _pipeline download (путь B)
 
 1. Пройди рекурсивно по `Specs/archive/` → найди все `.docx` (и `.pdf` если есть)
 2. Для каждого найденного документа:
@@ -67,7 +67,7 @@ Agent: Author v2 — пакетная обработка <путь-к-PDF>
 **Сразу после Batch Author** — если файл .docx, извлеки эталонный текст напрямую:
 
 ```bash
-python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+python -m _pipeline extract docx "<путь-к-.docx>" --tables
 ```
 
 Это создаст в `specs-extracted/<тема>/`:
@@ -79,7 +79,7 @@ python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tab
 После извлечения:
 1. Вызови Linker для внешних кросс-ссылок
 2. Обнови индексы
-3. Выполни `/lint`
+3. **Linker вызовет /lint** — единый финальный вызов
 
 ### Шаг 5: Обновить индексы
 
@@ -91,9 +91,9 @@ python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tab
 
 Добавь в мастер-список и обнови статистику.
 
-### Шаг 7: Выполни `/lint`
+### Шаг 7: Подтверди что Linker отработал
 
-Проверь битые ссылки и сирот.
+Linker уже вызван на шаге 3 (после извлечения). Проверь что кросс-ссылки добавлены.
 
 ## Шаблоны
 
@@ -102,7 +102,7 @@ python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tab
 ## Важно
 
 - **НЕ изменяй** исходные файлы за пределами `!INCOMING/` и `!double/`
-- **Всегда flatten'и** вложенную структуру Specs/archive/ от spec-crawler
+- **Всегда flatten'и** вложенную структуру Specs/archive/ от _pipeline download
 - **Проверяй дубликаты** по имени файла, номеру спецификации и размеру
 - **После flatten'а удаляй** Specs/archive/ из !INCOMING/
 - **Корректно определяй тему** по номеру спецификации, а не по имени файла
