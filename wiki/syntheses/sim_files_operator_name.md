@@ -192,6 +192,7 @@ OPL Record #3:
 
 > [!seealso] Иконки операторов
 > Детальный разбор форматов иконок, CLUT, TERMINAL PROFILE и практический тест-план — в [[wiki/research/operator_icons_on_sim|исследовании иконок оператора]].
+> **Как иконка попадает на экран**: [[wiki/research/operator_icon_display_pipeline|Display pipeline — от SIM до статус-бара]].
 
 ---
 

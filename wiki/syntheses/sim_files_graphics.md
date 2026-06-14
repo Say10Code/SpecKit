@@ -424,6 +424,7 @@ flowchart TD
 ## Связи
 
 - **Детальное исследование иконок**: [[wiki/research/operator_icons_on_sim|Operator Icons on SIM]]
+- **Display pipeline — от SIM до экрана**: [[wiki/research/operator_icon_display_pipeline|Отображение иконки оператора]]
 - **EF_SPN и EF_PNN текст**: [[wiki/reference/USIM_EF_Table|USIM EF Table]]
 - **Файловая система UICC**: [[wiki/concepts/UICC_File_System|UICC File System]]
 - **Типы EF (Transparent)**: [[wiki/concepts/EF_Types|Elementary File Types]]

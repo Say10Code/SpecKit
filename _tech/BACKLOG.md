@@ -1,6 +1,6 @@
 # Беклог ObsidianDB
 
-> **Последнее обновление**: 2026-06-14 14:15
+> **Последнее обновление**: 2026-06-14 16:30
 > **Назначение**: Боевой список задач. Обновляется после каждого завершения задачи (см. [_tech/README.md](README.md#5-backlog)).
 > **Правило**: ⚠️ Завершил задачу → обнови беклог. Завершил сессию → обнови беклог.
 
@@ -16,7 +16,7 @@
 | 🔵 P3 (низкое) | **3** |
 | ⚪ P4 (подумать) | **2** |
 | **Всего активных** | **5** |
-| **Завершено** | **54** |
+| **Завершено** | **57** |
 
 ```mermaid
 pie title Активные задачи (6)
@@ -46,8 +46,8 @@ pie title Активные задачи (6)
 | .speckit/ | ✅ Кэш метаданных (бывш. .3gpp-crawler) |
 | GitHook (PostToolUse) | ✅ Напоминание /lint |
 | Frontmatter validator | 0 ошибок, 58 warnings (yaml.safe_load) |
-| Graphify | Граф 7,642 узла, 19,799 рёбер, 396 сообществ, 102 оркестрационных ребра |
-| Беклог | 54/59 задач завершено (0 P0, 0 P1, 0 P2, 3 P3, 2 P4) |
+| Graphify | Граф 7,723 узла, 19,947 рёбер, 396 сообществ, 102 оркестрационных ребра |
+| Беклог | 57/62 задач завершено (0 P0, 0 P1, 0 P2, 3 P3, 2 P4) |
 
 ### ▶️ Next Up
 
@@ -537,6 +537,9 @@ pie title Активные задачи (6)
 | 52 | 🟢 | Диаграммы обновлены: 5 Mermaid-диаграмм по реальным данным графа | 14 июн | diagrams |
 | 53 | 🟢 | STRUCTURE.md + _tech/INDEX.md: навигационная карта проекта | 14 июн | structure |
 | 54 | 🟢 | Root cleanup: дубликаты удалены, Добро пожаловать.md → notes/ | 14 июн | cleanup |
+| 55 | 🟢 | Research-пайплайн: operator_icon_display_pipeline.md, R1-R4, Reviewer | 14 июн | research-test |
+| 56 | 🟢 | .spec-registry.md: 99 спецификаций, Researcher v2 (spec-first priority) | 14 июн | spec-registry |
+| 57 | 🟢 | registry suggest/update CLI, 68 названий из WhatTheSpec API | 14 июн | registry-cli |
 
 </details>
 
@@ -567,6 +570,10 @@ pie title Активные задачи (6)
 | 14 июн 14:00 | graphify | `/graphify . --enhanced`: 7,580 узлов, 19,645 рёбер, 380 сообществ | 30.7× сжатие |
 | 14 июн 14:20 | core-vs-data | Отчёт-анализ Core vs Data разделения, P2-10 в беклог | Разделение спроектировано |
 | 14 июн 14:30 | speckit-migration | **speckit hit-list миграция**: 13 файлов, декомиссия 5 GB, 100% переход | **CIAO 3gpp-crawler** |
+| 14 июн 15:00 | orchestration | R1-R4: 7 рёбер, /lint консолидация, Agent Orchestration Map + Graph Analysis | Граф доказал исправления |
+| 14 июн 15:30 | core-vs-data-p2 | P2-10 Phase 2: .gitignore (Core 234 tracked, Data excluded), 5 диаграмм по графу | Структура зафиксирована |
+| 14 июн 16:00 | backup-sync | backup_data.py + sync_data.py + README, тест: 376 файлов → 53 MB zip | Data-инфраструктура |
+| 14 июн 16:20 | spec-registry | .spec-registry.md (99 specs, 14 cat), Researcher v2 (spec-first), registry suggest CLI | **Эта сессия** |
 
 ---
 
@@ -583,4 +590,4 @@ pie title Активные задачи (6)
 
 ---
 
-*Беклог актуален на 2026-06-14 15:30. 54 задачи завершено. 5 активных (0 P2, 3 P3, 2 P4). Все средние задачи закрыты. Остались долгосрочные.*
+*Беклог актуален на 2026-06-14 16:30. 57 задач завершено. 5 активных (0 P2, 3 P3, 2 P4).*
