@@ -46,6 +46,8 @@ updated: 2026-06-12
 
 - [[wiki/research/sim_gps_lcs\|SIM и GPS/LCS — Location Services на UICC]] — архитектура LCS (GMLC, MO-LR/MT-LR), EF_LOCI-семейство, PROVIDE LOCAL INFORMATION (STK), GAD Shapes (TS 23.032), JavaCard-код слежения, сценарии: роуминг, fleet management, гео-ограниченные услуги
 
+- [[wiki/research/operator_icon_display_pipeline\|Отображение иконки оператора — путь от SIM до экрана]] — полный display pipeline: TERMINAL PROFILE биты, Icon Qualifier, пассивный (SPN) vs активный (STK), OTA-обновление, vendor-specific (Android vs iOS), EF_IMG → PNG → рендер
+
 ## Запланированы
 - "Сравнительный анализ SCP02/03/80/81: криптография и применение" — детальный crypto-анализ
 - "Reverse engineering SIM Toolkit: полный разбор протокола" — провода, байты, инструменты

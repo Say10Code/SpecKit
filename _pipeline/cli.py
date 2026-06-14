@@ -164,6 +164,8 @@ def main():
         print("  extract docx <file>         Extract .docx -> TXT + MD tables")
         print("  extract docling <file>      Extract .pdf -> Docling MD+JSON")
         print("  extract text <file>         Extract .pdf -> flat TXT (PyPDF2)")
+        print("  registry update             Enrich .spec-registry.md from WhatTheSpec API")
+        print("  registry suggest <topic>    Find relevant specs by topic")
         print("  status                      Show pipeline status")
         print()
         print("Examples:")
@@ -198,6 +200,36 @@ def main():
         tables = "--tables" in args
         all_ = "--all" in args
         cmd_extract(mode, path, tables=tables, all_=all_)
+    elif cmd == "registry" and len(args) >= 2:
+        sub = args[1]
+        if sub == "update":
+            from .registry import enrich_registry
+            apply_flag = "--apply" in args
+            print("[registry] Fetching spec titles from WhatTheSpec API...")
+            if apply_flag:
+                print("[registry] --apply: will write changes to .spec-registry.md")
+            changes = enrich_registry(dry_run=not apply_flag)
+            new = sum(1 for c in changes if c["status"] == "new")
+            updated = sum(1 for c in changes if c["status"] == "updated")
+            nf = sum(1 for c in changes if c["status"] == "not_found")
+            errs = sum(1 for c in changes if c["status"] == "error")
+            for c in changes:
+                if c["status"] in ("new", "updated"):
+                    print(f"  [{c['status']}] {c['spec']:12s} {c['title'][:70]}")
+                elif c["status"] == "not_found":
+                    print(f"  [skip]   {c['spec']:12s} (not found on WhatTheSpec)")
+                elif c["status"] == "error":
+                    print(f"  [ERROR]  {c['spec']:12s} {c['title'][:50]}")
+            print(f"\nSummary: {new} new, {updated} updated, {nf} skipped, {errs} errors")
+            if not apply_flag:
+                print("Run 'python -m _pipeline registry update --apply' to write changes.")
+        elif sub == "suggest" and len(args) >= 3:
+            from .registry import suggest_specs, print_suggestions
+            topic = " ".join(args[2:])
+            results = suggest_specs(topic)
+            print_suggestions(results)
+        else:
+            print("Usage: python -m _pipeline registry update|suggest")
     elif cmd == "status":
         cmd_status()
     else:

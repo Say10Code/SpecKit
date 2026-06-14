@@ -134,6 +134,7 @@ Service 99: 5GS (5G Support)
 - **EF_PNN**: PLMN Network Name (имя сети)
 - **EF_OPL**: Operator PLMN List (MCC→имя)
 - Иконки: [[wiki/research/operator_icons_on_sim|EF_SPNI, EF_PNNI, DF_GRAPHICS]]
+- **Display pipeline**: [[wiki/research/operator_icon_display_pipeline|от SIM до статус-бара]]
 - Подробно: [[notes/EF_SPN_PNN]]
 
 ## USIM и CAT/USAT
