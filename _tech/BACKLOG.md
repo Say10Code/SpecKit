@@ -1,6 +1,6 @@
-З# Беклог ObsidianDB
+# Беклог ObsidianDB
 
-> **Последнее обновление**: 2026-06-14 05:30
+> **Последнее обновление**: 2026-06-14 14:15
 > **Назначение**: Боевой список задач. Обновляется после каждого завершения задачи (см. [_tech/README.md](README.md#5-backlog)).
 > **Правило**: ⚠️ Завершил задачу → обнови беклог. Завершил сессию → обнови беклог.
 
@@ -13,38 +13,49 @@
 | 🔴 P0 (критическое) | **0** |
 | 🟡 P1 (высокое) | **0** |
 | 🟢 P2 (среднее) | **0** |
-| 🔵 P3 (низкое) | **2** |
-| **Всего активных** | **2** |
-| **Завершено** | **43** |
+| 🔵 P3 (низкое) | **3** |
+| ⚪ P4 (подумать) | **2** |
+| **Всего активных** | **5** |
+| **Завершено** | **54** |
 
 ```mermaid
-pie title Активные задачи (2)
-    "P3 — Низкое" : 2
+pie title Активные задачи (6)
+    "P2 — Среднее" : 1
+    "P3 — Низкое" : 3
+    "P4 — Подумать" : 2
 ```
 
 ### Системный срез
 
 | Компонент | Состояние |
 |---|---|
-| Sub-agents | 8 (+ Author v2 batch-capable) |
+| Sub-agents | 8 (+ Author v2 batch, SpecExtractor v3) |
 | Skills | 7 (+research) |
 | Includes | 6 (structure, agents, skills, standards, incoming, 3gpp-crawler) |
-| Quality Score | **91/100 (A)** — 0 ошибок FM, 0 битых ссылок, 94.6% reviewed |
+| Quality Score | **98/100 (A)** — 0 ошибок FM, 0 битых ссылок, 94.6% reviewed |
 | Wiki | 130 стр. (+7 index), 100% reviewed |
 | Битых ссылок | 0 |
-| Specifications PDF | 65 (+ category-map) |
-| specs-extracted | 58 TXT + 37 MD+JSON пар |
-| Torch CUDA | ✅ RTX 3060 (11 GB), 2.4-4.2× CPU |
-| 3gpp-crawler | ✅ Интегрирован (+ auto_patch_docling.py) |
-| Git | ✅ 5 коммитов |
+| Сирот | 1 (`telcoai_3gpp_search`) |
+| Specifications PDF | 74 (+ 20 R16/R17 .docx) |
+| specs-extracted | 78 TXT + 86 MD + 73 JSON |
+| Torch CUDA | ✅ RTX 3060 (12 GB), 2.4-4.2× CPU |
+| .venv (uv sync) | ✅ docling + torch (CUDA) + httpx + PyPDF2 + rich |
+| _pipeline/ (speckit) | ✅ 10 модулей, 5 CLI-команд, GPU активен |
+| 3gpp-crawler | 🗑️ Декомиссия выполнена (2026-06-14) |
+| Git | ✅ 6 коммитов |
+| .speckit/ | ✅ Кэш метаданных (бывш. .3gpp-crawler) |
 | GitHook (PostToolUse) | ✅ Напоминание /lint |
 | Frontmatter validator | 0 ошибок, 58 warnings (yaml.safe_load) |
+| Graphify | Граф 7,642 узла, 19,799 рёбер, 396 сообществ, 102 оркестрационных ребра |
+| Беклог | 54/59 задач завершено (0 P0, 0 P1, 0 P2, 3 P3, 2 P4) |
 
 ### ▶️ Next Up
 
 | Порядок | Задача | Почему |
 |---|---|---|
-| **1** | P3-3: Удалить нулевые файлы | 15 мин, простая задача |
+| **1** | P3-5.1: Docling — 1 оставшийся PDF | 15 мин, закрыть P3-5 на 100% |
+| **2** | P2-10: Core vs Data — логическое разделение | Фаза 2: .gitignore-стратегия |
+| **3** | P4-1: Стандартизация имён спецификаций | Оценить необходимость |
 
 ---
 
@@ -346,17 +357,95 @@ pie title Активные задачи (2)
 
 | Поле | Значение |
 |---|---|
-| **Статус** | 🔄 Этап 1: окружение + структура |
+| **Статус** | ✅ Завершено (2026-06-14) — полная миграция |
 | **Создано** | 2026-06-14 |
-| **Оценка** | ~5h |
+| **Оценка** | ~6.25h (включая P2-9) |
 | **Блокер** | — |
-| **Файлы** | `_pipeline/` (новый пакет), `pyproject.toml`, `.venv/`, `_tech/plans/consolidation-plan.md` |
+| **Файлы** | `_pipeline/` (10 модулей), `pyproject.toml`, `.venv/`, `.speckit/` |
 
-**Проблема**: 3 внешних Python-окружения (системный Python, uv tool 3gpp-crawler, uv tool graphifyy). CUDA работает только в системном, docling — только в 3gpp-crawler. 37 зависимостей, из которых реально нужно ~5. Код 3gpp-crawler (15K строк) используется на 15%.
+**Результат**: speckit полностью заменил 3gpp-crawler. 13 файлов изменено (агенты, includes, диспетчеры), 2 удалено (3gpp-crawler.toml + 3gpp-crawler/ 5 GB), `.3gpp-crawler/` → `.speckit/`. Агенты переписаны на `python -m _pipeline`. GPU доступен через `.venv`. Проект «похудел» с 10.8 GB до ~160 MB.
 
-**Решение**: Создать `_pipeline/` (пакет `speckit`) внутри ObsidianDB. `uv sync` с `.venv` в корне — CUDA видна. 6 этапов: окружение → downloader → extractors → агенты → decommission → верификация GPU. Исключается: TDoc/Meetings, Oxyde ORM, config cascade, niquests/hishel, ison/toon форматы.
+---
 
-**Критерий готовности**: `python -m _pipeline download 31.102` → файл в `!INCOMING/`. `python -m _pipeline extract docling <pdf>` → MD+JSON на GPU. `spec-crawler` заменён.
+### P2-9: Завершить speckit — оставшиеся этапы консолидации
+
+| Поле | Значение |
+|---|---|
+| **Статус** | ✅ Завершено (2026-06-14) — hit-list миграция |
+| **Создано** | 2026-06-14 (выделено из P2-8) |
+| **Оценка** | ~1.75h (факт: ~90 мин) |
+| **Блокер** | — |
+| **Файлы** | 13 файлов изменено, 2 удалено, `.3gpp-crawler/` → `.speckit/` |
+
+**Результат**: все 6 пунктов hit-list'а выполнены. Агенты переписаны на `python -m _pipeline`, декомиссия проведена (5 GB freed). Подробности в `_tech/reports/speckit-migration-hitlist.md`.
+
+---
+
+### P3-5.1: Docling — оставшийся 1 PDF (кириллический путь)
+
+| Поле | Значение |
+|---|---|
+| **Статус** | ⬜ Не начато |
+| **Создано** | 2026-06-14 (выделено из P3-5) |
+| **Оценка** | ~15m |
+| **Блокер** | — |
+| **Файлы** | `_tech/scripts/docling_migrate.py` |
+
+**Проблема**: 1 PDF не обработан из-за кириллического пути. Остальные 73/74 — OK.
+
+**Решение**: Скопировать PDF во временную ASCII-директорию → Docling → скопировать результат обратно.
+
+### P2-10: Core vs Data — логическое разделение проекта
+
+| Поле | Значение |
+|---|---|
+| **Статус** | ⬜ Не начато |
+| **Создано** | 2026-06-14 |
+| **Оценка** | ~1.5h |
+| **Блокер** | — |
+| **Файлы** | `_tech/reports/core-vs-data-separation-analysis.md` (отчёт), `.gitignore`, `CLAUDE.md`, `_tech/README.md` |
+
+**Проблема**: Проект смешивает Core (движок: агенты, `_pipeline`, скрипты, конфиги) и Data (хранилище: wiki, Specifications, specs-extracted, notes) в одной файловой системе без явного контракта. Git diff показывает и код, и контент. 89% размера — мёртвый груз (3gpp-crawler, .venv).
+
+**Решение**: Физически НЕ перемещать файлы (wikilinks ×130), но ввести логическое разделение:
+1. `.gitignore`-стратегия: Core в git, Data — отдельно
+2. Контракт для агентов: что читать, куда писать
+3. Документация в `CLAUDE.md`
+
+**Результат**:
+- ✅ Фаза 1: отчёт `core-vs-data-separation-analysis.md` создан
+- ✅ Фаза 2: `.gitignore` обновлён — Core (234 файла) в git, Data (181 MB PDF + specs-extracted + notes) исключены
+- ✅ 110 Specifications/, 5 notes/, 2 outputs/ — удалены из git-индекса
+- ✅ `.category-map.md` + `.gitkeep` — оставлены в git (Core)
+- ⬜ Фаза 4: Data-стратегия (будущее) — Git LFS или отдельный бэкап
+
+**Критерий готовности**: `git status` показывает только Core-файлы. CLAUDE.md документирует границу Core/Data.
+
+---
+
+## ⚪ P4 — Подумать (долгосрочные соображения)
+
+### P4-1: Стандартизация именования спецификаций
+
+| Поле | Значение |
+|---|---|
+| **Статус** | ⬜ Подумать |
+| **Создано** | 2026-06-14 |
+| **Источник** | `_tech/plans/archive/specs-directory-architecture.md` |
+| **Оценка** | ~2h (исследование + скрипт) |
+
+**Суть**: Имена файлов в `Specifications/` неоднородны (`gsm11-11.pdf`, `ts_102221v170100p.pdf`, `SGP.02-v4.1.pdf`). Предложен стандарт `<ORG>_<TYPE>_<NUMBER>_<VERSION>.<ext>`. Но переименование сломает wikilinks ×130 страниц. Без явной необходимости — не трогать. При появлении инструмента батч-обновления wikilinks — пересмотреть.
+
+### P4-2: Дедупликация версий спецификаций
+
+| Поле | Значение |
+|---|---|
+| **Статус** | ⬜ Подумать |
+| **Создано** | 2026-06-14 |
+| **Источник** | `_tech/plans/archive/specs-directory-architecture.md` |
+| **Оценка** | ~1h |
+
+**Суть**: 3 версии TS 102 221 лежат рядом. Неясно, какая актуальна. Варианты: (а) подпапки `v17.1/`, `v17.4/`, `v18.2/`; (б) `LATEST` симлинк; (в) `.category-map.md` с пометкой актуальной версии. Пока работает как есть — Reviewer знает где брать.
 
 ---
 
@@ -377,12 +466,17 @@ pie title Активные задачи (2)
 | P3-2 | 🔵 | Obsidian плагин | ⬜ | ? | P3-1 |
 | P3-3 | 🔵 | Удалить нулевые файлы в Tutorials | ✅ | 15m | — |
 | P3-5 | 🔵 | Docling-миграция 32 PDF → MD+JSON | ✅ | 4h | — |
-| P2-8 | 🟢 | speckit — консолидация пайплайна | ✅ | 3h | — |
+| P2-8 | 🟢 | speckit — консолидация | ✅ | 6.25h | — |
+| P2-9 | 🟢 | speckit — hit-list миграция | ✅ | 1.75h | — |
+| P3-5.1 | 🔵 | Docling: 1 оставшийся PDF | ⬜ | 15m | — |
+| P2-10 | 🟢 | Core vs Data — Фаза 2 (.gitignore) | ✅ | 30m | — |
+| P4-1 | ⚪ | Стандартизация имён спецификаций | ⬜ | 2h | — |
+| P4-2 | ⚪ | Дедупликация версий спецификаций | ⬜ | 1h | — |
 | ~~P3-4~~ | ~~🔵~~ | ~~Author Split (Drafter/Editor)~~ | ❌ | — | Отменено |
 
 ---
 
-## ✅ Завершённые задачи (43)
+## ✅ Завершённые задачи (44)
 
 <details>
 <summary>Развернуть список</summary>
@@ -429,6 +523,20 @@ pie title Активные задачи (2)
 | 38 | 🟢 | P2-5: Pipeline Parallelization — параллельный Author v2 dispatch | 14 июн | pipeline-parallel |
 | 39 | 🟢 | P2-1: connectivity audit — audit_connectivity.py, 0 битых, 1 сирота | 14 июн | connectivity |
 | 40 | 🟢 | P2-2: quality_metrics.py — 8 категорий, history JSON, Score 91/100 (A) | 14 июн | quality |
+| 41 | 🔵 | P3-3: Удалён нулевой файл `SIM_презентация_RU.pdf.md` (0 байт) | 14 июн | cleanup |
+| 42 | 🔵 | P3-5: Docling-миграция 32 PDF — 30/31 (99%), 1 fail (кириллица) | 14 июн | docling-migration |
+| 43 | 🟢 | P2-8 (частично): speckit — `_pipeline/` (10 модулей), `.venv` с CUDA, CLI | 14 июн | speckit |
+| 44 | 🟢 | Аудит `_tech/plans`: 5 планов в архив, consolidation-plan актуализирован | 14 июн | plans-audit |
+| 45 | 🟢 | Graphify: граф ObsidianDB — 7,580 узлов, 19,645 рёбер, 380 сообществ | 14 июн | graphify |
+| 46 | 🟢 | Core vs Data: отчёт-анализ разделения (P2-10 создан) | 14 июн | architecture |
+| 47 | 🟢 | BACKLOG v3: +3 задачи (P2-10, P3-5.1, P4-1, P4-2), ребаланс приоритетов | 14 июн | backlog |
+| 48 | 🟢 | speckit hit-list миграция: 13 файлов, декомиссия 5 GB, агенты → _pipeline | 14 июн | speckit-migration |
+| 49 | 🟢 | P2-8 + P2-9 завершены: speckit 100%, CIAO 3gpp-crawler | 14 июн | speckit |
+| 50 | 🟢 | R1-R4 применены: 7 оркестрационных рёбер, /lint консолидация, граф обновлён | 14 июн | orchestration |
+| 51 | 🟢 | P2-10 Фаза 2: .gitignore Core/Data (234 tracked, 110 PDF excluded) | 14 июн | git-strategy |
+| 52 | 🟢 | Диаграммы обновлены: 5 Mermaid-диаграмм по реальным данным графа | 14 июн | diagrams |
+| 53 | 🟢 | STRUCTURE.md + _tech/INDEX.md: навигационная карта проекта | 14 июн | structure |
+| 54 | 🟢 | Root cleanup: дубликаты удалены, Добро пожаловать.md → notes/ | 14 июн | cleanup |
 
 </details>
 
@@ -452,6 +560,13 @@ pie title Активные задачи (2)
 | 13 июн 19:15 | batch-authoring | Author v2 (Batch+Single режимы), batch-authoring-analysis.md | P3-4 отменён, Author Split не нужен |
 | 13 июн 20:15 | validator-fix | P1-1 U9 fix: check_frontmatter.py yaml.safe_load | 0 ошибок, 58 warnings |
 | 13 июн 21:15 | batch-authoring | P2-4+P2-6: Batch Authoring в 4 call sites + авто 7 шагов | 4 call sites обновлены |
+| 14 июн 02:00 | tier1-pipeline | P2-7: extract_docx.py TIER 1 — ARCHITECTURE-v3, 4 call sites | 0.2 сек vs 3 мин |
+| 14 июн 11:00 | connectivity+quality | P2-1+P2-2: connectivity audit + quality metrics | Score 98/100 (A) |
+| 14 июн 12:00 | speckit | P2-8: `_pipeline/` (10 модулей), `.venv` с CUDA, CLI рабочий | GPU через venv |
+| 14 июн 13:30 | plans-audit | Аудит `_tech/plans`: 5 планов в архив, consolidation-plan v3, BACKLOG v2 | Планы разобраны |
+| 14 июн 14:00 | graphify | `/graphify . --enhanced`: 7,580 узлов, 19,645 рёбер, 380 сообществ | 30.7× сжатие |
+| 14 июн 14:20 | core-vs-data | Отчёт-анализ Core vs Data разделения, P2-10 в беклог | Разделение спроектировано |
+| 14 июн 14:30 | speckit-migration | **speckit hit-list миграция**: 13 файлов, декомиссия 5 GB, 100% переход | **CIAO 3gpp-crawler** |
 
 ---
 
@@ -468,4 +583,4 @@ pie title Активные задачи (2)
 
 ---
 
-*Беклог актуален на 2026-06-14 08:30. 43 задачи завершено. 2 активных (0 P0, 0 P1, 0 P2, 2 P3). Оставшиеся P3-1/P3-2 — долгосрочные (мульти-пользовательская архитектура, Obsidian плагин).*
+*Беклог актуален на 2026-06-14 15:30. 54 задачи завершено. 5 активных (0 P2, 3 P3, 2 P4). Все средние задачи закрыты. Остались долгосрочные.*

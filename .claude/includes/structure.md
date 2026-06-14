@@ -25,7 +25,7 @@ D:\ObsidianDB\
 ├── specs-extracted/           ← 📄 Extracted texts (58 TXT + 37 MD+JSON)
 ├── outputs/                   ← ✏️ Reports, HTML
 ├── _tech/                     ← Engineering docs (BACKLOG, architecture, plans)
-└── 3gpp-crawler.toml          ← spec-crawler config
+└── pyproject.toml              ← Python project config (speckit)
 ```
 
 ## Permissions

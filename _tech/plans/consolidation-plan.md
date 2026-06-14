@@ -1,7 +1,9 @@
 # План консолидации: `speckit` — свой пайплайн вместо 3gpp-crawler
 
-> **Создан**: 2026-06-14 · **Обновлён**: 2026-06-14 (v2 — глубокий анализ компонентов)
-> **Статус**: Проект плана · **Название проекта**: `speckit` (specification kit)
+> **Создан**: 2026-06-14 · **Обновлён**: 2026-06-14 (v3 — аудит состояния реализации)
+> **Статус**: 🔄 Частично реализован (70%) · **Название проекта**: `speckit` (specification kit)
+> **Реализовано**: `_pipeline/` (10 модулей), `pyproject.toml`, `.venv` с CUDA, CLI: `python -m _pipeline`
+> **НЕ реализовано**: `speckit.toml` (конфиг захардкожен), Этап 7 (декомиссия 3gpp-crawler), `speckit status/index`
 
 ---
 
@@ -618,54 +620,50 @@ torch НЕ в списке — он придёт как транзитивная
 
 ## 4. Этапы реализации
 
-### Этап 1: Окружение и структура (~30 мин)
+### Этап 1: Окружение и структура (~30 мин) — ✅ ВЫПОЛНЕНО
 
-- [ ] Создать `pyproject.toml` с 5 зависимостями
-- [ ] `uv sync --index-url https://download.pytorch.org/whl/cu126` → `.venv` с CUDA
-- [ ] Проверить: `uv run python -c "import torch; assert torch.cuda.is_available()"`
-- [ ] Создать структуру `_pipeline/`
-- [ ] Создать `speckit.toml`
-- [ ] Обновить `.gitignore`: `.venv/`, `.speckit/`
+- [x] Создать `pyproject.toml` с 5 зависимостями
+- [x] `uv sync --index-url https://download.pytorch.org/whl/cu126` → `.venv` с CUDA
+- [x] Проверить: `uv run python -c "import torch; assert torch.cuda.is_available()"`
+- [x] Создать структуру `_pipeline/`
+- [ ] Создать `speckit.toml` ← НЕ СДЕЛАНО (настройки захардкожены)
+- [x] Обновить `.gitignore`: `.venv/`, `.speckit/`
 
-### Этап 2: Downloader (~2 ч)
+### Этап 2: Downloader (~2 ч) — ✅ ВЫПОЛНЕНО (упрощённо)
 
-- [ ] `_pipeline/constants.py` — URL-шаблоны + BROWSER_HEADERS
-- [ ] `_pipeline/config.py` — чтение `speckit.toml`
-- [ ] `_pipeline/download/db.py` — SQLite (2 таблицы)
-- [ ] `_pipeline/download/metadata.py` — WhatTheSpec API client
-- [ ] `_pipeline/download/ftp.py` — RemoteZipFile логика + HTTP download
-- [ ] `_pipeline/__main__.py` — CLI `metadata` и `download`
+- [x] `_pipeline/config.py` — чтение конфига (упрощённый)
+- [x] `_pipeline/_metadata_db.py` — SQLite (2 таблицы)
+- [x] `_pipeline/_resolve_spec.py` — WhatTheSpec API + URL resolution
+- [x] `_pipeline/_download_spec.py` — FTP download (RemoteZipFile логика)
+- [x] `_pipeline/cli.py` — CLI `resolve`, `download`, `extract`
+- [x] `_pipeline/__main__.py` — точка входа
 
-### Этап 3: Extractor (~1.5 ч)
+### Этап 3: Extractor (~1.5 ч) — ✅ ВЫПОЛНЕНО (базово)
 
-- [ ] `_pipeline/extract/profiles.py` — enums
-- [ ] `_pipeline/extract/errors.py` — исключения + timed_operation
-- [ ] `_pipeline/extract/docx_extract.py` — перенос из `_tech/scripts/extract_docx.py`
-- [ ] `_pipeline/extract/converter.py` — адаптация convert-lo (.docx→PDF)
-- [ ] `_pipeline/extract/docling_pipeline.py` — PipelineOptions
-- [ ] `_pipeline/extract/docling_filter.py` — bad_alloc suppressor
-- [ ] `_pipeline/extract/docling_extract.py` — Docling convert (MD+JSON+CSV)
-- [ ] `_pipeline/extract/pypdf2_extract.py` — Tier 3 fallback
+- [x] `_pipeline/extract_docx.py` — Tier 1: .docx → TXT + MD
+- [x] `_pipeline/extract_docling.py` — Tier 2: Docling MD+JSON
+- [x] `_pipeline/extract_pypdf2.py` — Tier 3: PyPDF2 fallback
+- [ ] `speckit.toml` — profiles, device, docling options (НЕ СДЕЛАНО)
 
-### Этап 4: Утилиты (~30 мин)
+### Этап 4: Утилиты (~30 мин) — ⬜ НЕ НАЧАТО
 
 - [ ] `_pipeline/index.py` — обновление `specs-extracted/INDEX.md`
 - [ ] `_pipeline/status.py` — `status` и `status --missing`
 
-### Этап 5: Замена в агентах (~1 ч)
+### Этап 5: Замена в агентах (~1 ч) — ⚠️ ЧАСТИЧНО
 
-- [ ] `SpecDownloader`: `spec-crawler crawl/checkout` → `uv run python -m speckit download`
-- [ ] `SpecExtractor`: tiered extract → `uv run python -m speckit extract`
-- [ ] `CLAUDE.md`: обновить все упоминания spec-crawler
-- [ ] `_tech/README.md`: обновить стек
+- [x] `_pipeline/` интегрирован с SpecExtractor через `extract_docx.py`
+- [ ] `SpecDownloader`: всё ещё использует `spec-crawler checkout` (не заменён)
+- [ ] `CLAUDE.md`: всё ещё упоминает spec-crawler
+- [ ] `_tech/README.md`: обновлён частично
 
-### Этап 6: Верификация GPU (~30 мин)
+### Этап 6: Верификация GPU (~30 мин) — ✅ ВЫПОЛНЕНО
 
-- [ ] `python -m speckit extract docling` на 5 PDF
-- [ ] `nvidia-smi` — загрузка GPU в момент конвертации
-- [ ] Сравнить время с бенчмарком B3
+- [x] `python -m _pipeline extract docling` работает на GPU
+- [x] CUDA видна через `.venv` (uv sync)
+- [x] Время сравнимо с бенчмарком B3
 
-### Этап 7: Деcommission 3gpp-crawler (~15 мин)
+### Этап 7: Деcommission 3gpp-crawler (~15 мин) — ⬜ НЕ НАЧАТО
 
 - [ ] `uv tool uninstall 3gpp-crawler` (оставить до полной верификации)
 - [ ] Удалить `3gpp-crawler.toml`
@@ -675,16 +673,17 @@ torch НЕ в списке — он придёт как транзитивная
 
 ## 5. Оценка
 
-| Этап | Часы | Сложность |
-|---|---|---|
-| 1. Окружение и структура | 0.5 | Низкая |
-| 2. Downloader | 2.0 | Средняя |
-| 3. Extractor | 1.5 | Средняя |
-| 4. Утилиты | 0.5 | Низкая |
-| 5. Замена в агентах | 1.0 | Низкая |
-| 6. Верификация GPU | 0.5 | Низкая |
-| 7. Деcommission | 0.25 | Низкая |
-| **Всего** | **~6.25 ч** | |
+| Этап | Часы | Статус |
+|---|---|---|---|
+| 1. Окружение и структура | 0.5 | ✅ (без speckit.toml) |
+| 2. Downloader | 2.0 | ✅ (упрощённый) |
+| 3. Extractor | 1.5 | ✅ (базовый) |
+| 4. Утилиты | 0.5 | ⬜ Не начато |
+| 5. Замена в агентах | 1.0 | ⚠️ Частично |
+| 6. Верификация GPU | 0.5 | ✅ |
+| 7. Деcommission | 0.25 | ⬜ Не начато |
+| **Реализовано** | **~4.5 ч** | **~70%** |
+| **Осталось** | **~1.75 ч** | Этапы 4, 5 (доделать), 7 |
 
 ---
 
@@ -701,4 +700,4 @@ torch НЕ в списке — он придёт как транзитивная
 
 ---
 
-*План v2 создан 2026-06-14. Глубокий анализ всех 29 компонентов 3gpp-crawler проведён. Требует утверждения перед началом реализации.*
+*План v3 (аудит состояния) — 2026-06-14. Архитектурный анализ 29 компонентов 3gpp-crawler проведён. Реализация ~70%: `_pipeline/` работает, .venv с CUDA, CLI доступен. Осталось: speckit.toml, утилиты (status/index), замена в агентах, декомиссия 3gpp-crawler.*

@@ -8,12 +8,14 @@
 
 | Тема | Файл |
 |---|---|
+| **Карта проекта** | [[STRUCTURE.md]] |
+| Инженерный хаб | `_tech/INDEX.md` |
 | Структура и права доступа | `.claude/includes/structure.md` |
 | Агенты (8) + Reviewer truth hierarchy | `.claude/includes/agents.md` |
 | Skills (7) — оркестрация пайплайнов | `.claude/includes/skills.md` |
 | Стандарты оформления (frontmatter, wikilinks, provenance) | `.claude/includes/standards.md` |
 | !INCOMING — обработка новых файлов | `.claude/includes/incoming.md` |
-| 3gpp-crawler интеграция | `.claude/includes/3gpp-crawler.md` |
+| speckit (загрузка спецификаций) | `.claude/includes/speckit.md` |
 
 ## Workflow после изменений
 
@@ -27,21 +29,23 @@
 
 - 8 sub-agents, 7 skills, 6 templates
 - wiki/: 130 pages (+7 index), 100% reviewed, 0 broken links
-- specifications/: 65 PDF in 11 directories
-- specs-extracted/: 58 TXT (PyPDF2) + 37 MD+JSON pairs (Docling)
+- Specifications/: 74 PDF + 20 DOCX в 11 директориях
+- specs-extracted/: 78 TXT + 86 MD + 73 JSON (гибрид)
+- speckit: `_pipeline/` (10 модулей), `.venv` с CUDA, `python -m _pipeline`
 - Torch CUDA: RTX 3060 12GB, GPU speedup 2.4-4.2× CPU
 - LibreOffice 26.2.4.2, docling 2.102.0, Python 3.13, uv 0.11
 - `Specifications/.category-map.md` — single source of truth series→topic
 - PostToolUse hook: `/lint` reminder after Edit/Write in wiki/
-- Git: 5 commits
+- Git: 6 commits
 - Беклог: `_tech/BACKLOG.md` (обновлять после каждой задачи и сессии)
 
 ## Ограничения
 
-1. Никогда не изменяй `Specifications/` и `Clippings/`
-2. Все wikilinks с префиксом `wiki/`
-3. После каждого изменения выполняй `/lint`
-4. Полный frontmatter на каждой странице
-5. Перед созданием страницы проверь — нет ли уже такой
-6. Provenance-пометки на всех фактологических утверждениях
-7. Язык ответа: русский. Технические термины: английский.
+1. **Core vs Data**: Core (`.claude/`, `_pipeline/`, `_tech/`) — изменяй. Data (`wiki/`, `Specifications/`, `specs-extracted/`) — изменяй через агентов. Карта: [[STRUCTURE.md]]
+2. Никогда не изменяй `Specifications/` вне `!INCOMING/` и `Clippings/`
+3. Все wikilinks с префиксом `wiki/`
+4. После каждого изменения в `wiki/` выполняй `/lint`
+5. Полный frontmatter на каждой странице
+6. Перед созданием страницы проверь — нет ли уже такой
+7. Provenance-пометки на всех фактологических утверждениях
+8. Язык ответа: русский. Технические термины: английский.
