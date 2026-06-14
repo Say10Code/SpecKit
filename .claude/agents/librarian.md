@@ -51,37 +51,35 @@ SpecDownloader вызывает `spec-crawler checkout`, который созд
 
 ### Шаг 3: Сортировка по теме
 
-| Номер серии | Тематическая директория |
-|---|---|
-| 21.xxx (3GPP requirements) | `ETSI_3GPP/` |
-| 22.xxx (Service aspects) | `ETSI_3GPP/` |
-| 23.xxx (5G Core, procedures) | `ETSI_3GPP/` |
-| 24.xxx (SIP/IMS) | `ETSI_3GPP/` |
-| 31.xxx (UICC/USIM/SIM) | `ETSI_3GPP/USIM/` или `ETSI_3GPP/UICC/` |
-| 33.xxx (Security) | `ETSI_3GPP/Security/` |
-| 34.xxx (Test, codes) | `ETSI_3GPP/Test_Conformance/` |
-| 35.xxx (Algorithms) | `ETSI_3GPP/Security/` |
-| 38.xxx (NR/RAN) | `ETSI_3GPP/` |
-| 101.xxx (ETSI numbering) | `ETSI_3GPP/Numbering/` |
-| 102.xxx (ETSI UICC/STK) | `ETSI_3GPP/UICC/` или `ETSI_3GPP/CAT_STK/` |
-| 131.xxx (ETSI JavaCard API) | `ETSI_3GPP/UICC_API/` |
-| 143.xxx (ETSI API tests) | `ETSI_3GPP/Test_Conformance/` |
-| 151.xxx (ETSI legacy GSM) | `ETSI_3GPP/GSM_Legacy/` |
-| SGP.xx (GSMA eSIM) | `eSIM/` |
-| GPC (GlobalPlatform) | `GlobalPlatform/` |
-| JavaCard/TCA | `JavaCard/` |
-| Книги, руководства | `Books/`, `Manuals/` |
-| Патенты, дипломные | `Papers/` |
-| Пособия | `Tutorials/` |
+**Маппинг серий**: см. `Specifications/.category-map.md` — **единый source of truth**. Не дублируй таблицу здесь.
+Краткая памятка: 31.xxx → USIM/UICC, 102.xxx → UICC/CAT_STK/OTA, 33.xxx/35.xxx → Security, 23.xxx/24.xxx → ETSI_3GPP/, GSMA → eSIM, GP → GlobalPlatform, JavaCard → JavaCard.
 
-### Шаг 4: Создать wiki-страницы
+### Шаг 4: Batch Authoring — создать все wiki-страницы
 
-Для каждого нового файла:
-1. Создай summary в `wiki/summaries/` (Author agent)
-2. Извлеки концепты → `wiki/concepts/` (Author)
-3. Зафиксируй сущности → `wiki/entities/` (Author)
-4. Создай synthesis если кросс-тематика (Author)
-5. Расставь ссылки (Linker)
+Для каждого нового файла — **один вызов Author v2 в Batch mode**:
+
+```
+Agent: Author v2 — пакетная обработка <путь-к-PDF>
+```
+
+### Шаг 4.5: 🆕 extract_docx.py — Tier 1 извлечение
+
+**Сразу после Batch Author** — если файл .docx, извлеки эталонный текст напрямую:
+
+```bash
+python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+```
+
+Это создаст в `specs-extracted/<тема>/`:
+- `<имя>.txt` — plain text (Reviewer Pass 1 Grep)
+- `<имя>.md` — **таблицы в Markdown** (ключевое! Reviewer видит все структуры EF)
+
+Если файл .pdf (не .docx) — используй `SpecExtractor` agent.
+
+После извлечения:
+1. Вызови Linker для внешних кросс-ссылок
+2. Обнови индексы
+3. Выполни `/lint`
 
 ### Шаг 5: Обновить индексы
 

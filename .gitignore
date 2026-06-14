@@ -23,3 +23,6 @@ raw/
 __pycache__/
 *.pyc
 .venv/
+
+# graphify output (regenerated on each run)
+graphify-out/

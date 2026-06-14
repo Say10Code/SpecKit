@@ -79,12 +79,53 @@ ls -la "D:\ObsidianDB\Specifications\!INCOMING\Specs\archive\"
                     └── 31102-j40.docx  ← Документ спецификации
 ```
 
-### Шаг 4: Сообщить результат
+### Шаг 4: Запустить полный пайплайн обработки
 
-После скачивания:
-- Перечисли какие файлы появились в `!INCOMING/`
-- **Сразу запусти Librarian** для сортировки и flatten'а (см. `librarian.md`)
-- Librarian переместит .docx в правильную тематическую директорию и удалит Specs/archive/...
+После checkout — **сразу запусти Librarian** для flatten и сортировки (см. `librarian.md`).
+
+Когда Librarian завершит — **автоматически продолжи цепочку**, не жди ручной команды:
+
+1. **Параллельный Batch Author v2** — для КАЖДОГО нового файла, **ВСЕ в одном сообщении**:
+
+   ```
+   # Для нескольких спецификаций — диспатч ПАРАЛЛЕЛЬНО:
+   Agent: Author v2 — пакетная обработка <путь-к-файлу-1>
+   Agent: Author v2 — пакетная обработка <путь-к-файлу-2>
+   Agent: Author v2 — пакетная обработка <путь-к-файлу-3>
+   # Все три выполняются одновременно! Время = max(одной), не сумма.
+   ```
+
+   ⏱️ 3 спецификации за время одной. PDF читается 1 раз на спецификацию.
+
+2. **🆕 extract_docx.py — Tier 1 извлечение** (для .docx — 0.2 сек, 750× быстрее):
+   ```bash
+   python "D:\ObsidianDB\_tech\scripts\extract_docx.py" "<путь-к-.docx>" --tables
+   ```
+   Создаёт: `specs-extracted/<тема>/*.txt` + `*.md` (ТАБЛИЦЫ!)
+   ⚠️ **Всегда для .docx файлов** — Reviewer без таблиц не проверит структуры EF.
+
+3. **SpecExtractor** — только если файл НЕ .docx (PDF):
+   ```bash
+   python "D:\ObsidianDB\_tech\scripts\auto_patch_docling.py"
+   ```
+   Затем: `Agent: SpecExtractor — извлеки <путь-к-PDF>`
+   → `specs-extracted/<категория>/*.txt` + для 3GPP: MD+JSON через Docling
+
+4. **/lint** — проверь битые ссылки, сирот, frontmatter
+
+5. **Обнови `Roadmap.md`** — добавь в мастер-список
+
+**Пример сводки после полного выполнения (Batch)**:
+```
+/spec-download 31.102 35.206
+  ✅ TS 31.102 R19.4.0 → ETSI_3GPP/USIM/31102-j40.docx
+  ✅ TS 35.206 R18.0  → ETSI_3GPP/Security/35206-h00.docx
+  📦 Batch: TS 31.102 — 1 вызов Author → summary + 4 concepts (2.1 мин)
+  📦 Batch: TS 35.206 — 1 вызов Author → summary + 2 concepts (1.4 мин)
+  📄 specs-extracted/ETSI_3GPP/USIM/31102-j40.txt — извлечён (PyPDF2)
+  📄 specs-extracted/3GPP/31.102/19.4/ — извлечён (Docling MD+JSON)
+  🔍 /lint: 0 битых ссылок, 0 сирот
+```
 
 ## Поддерживаемые спецификации
 

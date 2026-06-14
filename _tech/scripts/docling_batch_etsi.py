@@ -17,10 +17,10 @@ print(f"Found {len(pdfs)} ETSI PDFs. Output: {output_base}")
 
 pipeline = PdfPipelineOptions(
     accelerator_options=AcceleratorOptions(device="cuda"),
-    images_scale=1.5,
+    images_scale=1.0,               # B8 fix: safe default, prevents OOM on diagrams
     layout_batch_size=2,
     table_batch_size=2,
-    generate_picture_images=True,
+    generate_picture_images=False,   # B8 fix: disable to prevent bad_alloc in pypdfium2
 )
 opts = PdfFormatOption(pipeline_options=pipeline)
 converter = DocumentConverter(
