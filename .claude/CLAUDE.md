@@ -25,4 +25,6 @@
 - `Specifications/.category-map.md` — единый source of truth серия→тема
 - PostToolUse hook: напоминание /lint после Edit/Write в wiki/
 - Беклог: `_tech/BACKLOG.md` (обновлять после каждой задачи и сессии)
-- Git: 5 коммитов (`fec756e` последний)
+- Git: 9 коммитов (`0beb915` последний)
+- `_pipeline/_download_spec.py`: ZIP-fallback при DOCX 403 (v4.2.2)
+- **Приоритет скиллов**: см. [`CLAUDE.md`](../CLAUDE.md) — секция «Приоритет скиллов — КРИТИЧЕСК»
