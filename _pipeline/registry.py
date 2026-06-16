@@ -275,13 +275,28 @@ def suggest_specs(topic: str) -> list[tuple[str, str, str, str]]:
     keywords = topic.lower().split()
 
     def _cat_match(cat_name: str, cat_kw: dict) -> str | None:
-        """Fuzzy match a parsed section name to the keyword dictionary key."""
-        cat_lower = cat_name.lower()
+        """Fuzzy match a parsed section name to the keyword dictionary key.
+
+        Handles multiple naming conventions:
+        - "UICC / SIM / USIM (31-я серия)" — series ref stripped
+        - "Non-Access Stratum (NAS) — 24-я серия" — domain label (NAS) kept, series ref stripped
+        - "UE Capability (38.306 + 36.306 + cross-series)" — long spec list stripped
+        """
+        # 1) Strip trailing metadata after " — " (Russian dash convention)
+        core = cat_name.split(' — ')[0].strip()
+        # 2) Strip parenthetical series references (contain digits) but NOT domain labels
+        #    Domain labels: (NAS), (LCS), (Location Services) — no digits
+        #    Series refs: (31-я серия), (38.306 + 36.306 + ...) — contain digits
+        core = re.sub(r'\s*\([^)]*\d[^)]*\)$', '', core).strip()
+        core_lower = core.lower()
+
         for key in cat_kw:
-            # Strip parenthetical suffix from parsed name: "UICC / SIM / USIM (31-я серия)"
-            core = re.sub(r'\(.+\)', '', cat_name).strip().lower()
-            key_core = re.sub(r'\(.+\)', '', key).strip().lower()
-            if core and key_core and (core in key_core or key_core in core or core == key_core):
+            key_core = key.split(' — ')[0].strip().lower()
+            if core_lower and key_core and (
+                core_lower in key_core
+                or key_core in core_lower
+                or core_lower == key_core
+            ):
                 return key
         return None
 
@@ -289,18 +304,25 @@ def suggest_specs(topic: str) -> list[tuple[str, str, str, str]]:
     category_keywords = {
         "UICC / SIM / USIM": ["uicc", "sim", "usim", "card", "file", "ef_"],
         "UICC Platform / CAT / OTA": ["uicc", "cat", "stk", "ota", "over-the-air", "toolkit", "proactive"],
-        "Security / Authentication": ["security", "auth", "aka", "milenage", "tuak", "key", "encrypt", "cipher"],
-        "5G Core Architecture": ["5g", "core", "sba", "amf", "smf", "upf", "network function"],
-        "Non-Access Stratum (NAS)": ["nas", "registration", "attach", "mobility", "emm", "esm", "5mm"],
-        "NR / 5G RAN": ["nr", "ran", "rrc", "gnb", "radio", "beam", "phy", "mac", "pdcp", "rlc"],
-        "Multi-RAT / NSA / EN-DC": ["nsa", "en-dc", "ne-dc", "dual connectivity", "scg", "mcg", "sgnb"],
+        "Security / Authentication": ["security", "auth", "aka", "milenage", "tuak", "key", "encrypt", "cipher", "suci", "supi"],
+        "5G Core Architecture": ["5g", "core", "sba", "amf", "smf", "upf", "network function", "pcf", "nrf", "nwdaf", "5gc"],
+        "Non-Access Stratum (NAS)": ["nas", "registration", "attach", "mobility", "emm", "esm", "5mm", "5gsm", "5gmm", "tau", "pdu session"],
+        "NR / 5G RAN": ["nr", "ran", "rrc", "gnb", "radio", "beam", "phy", "mac", "pdcp", "rlc", "pdcp", "sdap", "coreset", "dc_", "ssb"],
+        "Multi-RAT / NSA / EN-DC / Positioning": ["nsa", "en-dc", "ne-dc", "dual connectivity", "scg", "mcg", "sgnb", "lpp", "positioning protocol"],
         "LTE / E-UTRAN": ["lte", "4g", "e-utran", "enb", "s1", "x2", "epc"],
-        "Service Aspects": ["service", "requirement", "plmn", "barring", "roaming"],
+        "UE Capability": ["ue capability", "capability", "featureset", "featuregroup", "bandcombination", "band combination", "ue-capability", "ue radio access", "supportedband"],
+        "V2X / Sidelink": ["v2x", "sidelink", "pc5", "vehicle", "c-v2x", "its", "prose"],
+        "Positioning / LCS": ["positioning", "location", "lcs", "gmlc", "lmf", "nrppa", "otdoa", "gnss", "e-cid", "tdoa", "multi-rtt"],
+        "NTN / Satellite": ["ntn", "satellite", "leo", "geo", "haps", "non-terrestrial", "space", "ephemeris"],
+        "IoT / CIoT / RedCap": ["iot", "ciot", "redcap", "nb-iot", "emtc", "lte-m", "mtc", "constrained", "nidd", "early data"],
+        "Service Aspects": ["service", "requirement", "plmn", "barring", "roaming", "vocabulary", "terminology", "glossary", "specification list", "henb", "hnb", "femtocell", "home node"],
         "Legacy GSM / 3G": ["gsm", "3g", "2g", "umts", "gprs", "sim"],
         "ETSI": ["etsi", "numbering", "aid", "ssp", "smart secure platform"],
-        "Codecs / Media": ["codec", "voice", "media", "evs", "amr", "ims media"],
-        "Core Network Protocols": ["diameter", "s6a", "rest", "nf", "nrf", "sba service"],
-        "OAM": ["charging", "cdr", "oam", "management"],
+        "Codecs / Media": ["codec", "voice", "media", "evs", "amr", "ims media", "voip", "rtp", "amr-wb"],
+        "Core Network Protocols": ["diameter", "s6a", "rest", "nf", "nrf", "sba service", "gtp", "sbi", "nudm", "namf"],
+        "OAM / Charging": ["charging", "cdr", "oam", "management", "trace", "mdt"],
+        "Interworking / Migration": ["interworking", "migration", "epc", "n26", "handover", "eps fallback", "rat fallback"],
+        "Conformance Testing": ["conformance", "test", "pct", "rf test", "rrm test", "ue test", "ota", "antenna", "emc", "electromagnetic", "a-gps", "protocol conformance", "ims conformance"],
     }
 
     # Score each category
@@ -364,7 +386,16 @@ def suggest_specs(topic: str) -> list[tuple[str, str, str, str]]:
         return score
 
     results.sort(key=_result_score, reverse=True)
-    return results
+
+    # Deduplicate: keep highest-scoring entry per spec number
+    seen: set[str] = set()
+    deduped: list[tuple[str, str, str, str]] = []
+    for r in results:
+        spec_num = r[0]
+        if spec_num not in seen:
+            seen.add(spec_num)
+            deduped.append(r)
+    return deduped
 
 
 def _relevance_label(score: int) -> str:
