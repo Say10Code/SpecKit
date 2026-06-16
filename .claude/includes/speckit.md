@@ -5,15 +5,22 @@
 
 ## Key commands
 
+**Все команды — через `.venv`.** После `uv sync` используй явный путь или активируй окружение:
+
 ```bash
-python -m _pipeline metadata fetch 31.102     # Update metadata (WhatTheSpec API)
-python -m _pipeline download 31.102           # Download spec → !INCOMING/
-python -m _pipeline download 31.102 -r 18.0   # Specific release (default: latest)
-python -m _pipeline extract docx <path>       # Tier 1: .docx → TXT+MD (0.2 sec)
-python -m _pipeline extract docling <path>    # Tier 2: PDF → MD+JSON (GPU)
-python -m _pipeline extract pypdf2 <path>     # Tier 3: PDF → TXT (fallback)
-python -m _pipeline status                    # Status: downloaded/extracted
-python -m _pipeline registry suggest "<topic>" # Find relevant specs by topic
+# Вариант 1: явный путь (надёжно, не требует активации)
+.venv\Scripts\python.exe -m _pipeline metadata fetch 31.102
+.venv\Scripts\python.exe -m _pipeline download 31.102
+.venv\Scripts\python.exe -m _pipeline download 31.102 -r 18.0
+.venv\Scripts\python.exe -m _pipeline extract docx <path>
+.venv\Scripts\python.exe -m _pipeline extract docling <path>
+.venv\Scripts\python.exe -m _pipeline extract pypdf2 <path>
+.venv\Scripts\python.exe -m _pipeline status
+.venv\Scripts\python.exe -m _pipeline registry suggest "<topic>"
+
+# Вариант 2: активировать venv (короче, но требует активации на каждую сессию)
+.venv\Scripts\Activate.ps1
+python -m _pipeline download 31.102    # теперь python = .venv\Scripts\python.exe
 ```
 
 ## Download: DOCX + ZIP fallback (v4.2.2+)
