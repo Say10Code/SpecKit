@@ -62,16 +62,16 @@
     Для полноценной работы нужно скопировать Data с основного ПК или скачать спецификации."
 
 [ ] Проверить Python-окружение:
-    python -m _pipeline status
+    .venv\Scripts\python.exe -m _pipeline status
 
 [ ] Проверить доступ к 3GPP FTP:
-    python -m _pipeline download 31.102
+    .venv\Scripts\python.exe -m _pipeline download 31.102
     - DOCX HTTP 200 → ок
     - DOCX HTTP 403 → ZIP-fallback сработает автоматически (v4.2.2+)
     - DOCX HTTP 403 + ZIP HTTP 403 → FTP недоступен
 
 [ ] Проверить WhatTheSpec API:
-    python -m _pipeline metadata fetch 31.102
+    .venv\Scripts\python.exe -m _pipeline metadata fetch 31.102
     - Успешно → metadata cache работает
     - Ошибка сети → проверить прокси (см. ниже)
 
