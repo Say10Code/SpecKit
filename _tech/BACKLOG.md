@@ -1,6 +1,6 @@
 # Беклог ObsidianDB
 
-> **Последнее обновление**: 2026-06-14 16:30
+> **Последнее обновление**: 2026-06-20
 > **Назначение**: Боевой список задач. Обновляется после каждого завершения задачи (см. [_tech/README.md](README.md#5-backlog)).
 > **Правило**: ⚠️ Завершил задачу → обнови беклог. Завершил сессию → обнови беклог.
 
@@ -16,11 +16,10 @@
 | 🔵 P3 (низкое) | **3** |
 | ⚪ P4 (подумать) | **2** |
 | **Всего активных** | **5** |
-| **Завершено** | **57** |
+| **Завершено** | **67** |
 
 ```mermaid
-pie title Активные задачи (6)
-    "P2 — Среднее" : 1
+pie title Активные задачи (5)
     "P3 — Низкое" : 3
     "P4 — Подумать" : 2
 ```
@@ -30,32 +29,39 @@ pie title Активные задачи (6)
 | Компонент | Состояние |
 |---|---|
 | Sub-agents | 8 (+ Author v2 batch, SpecExtractor v3) |
-| Skills | 7 (+research) |
-| Includes | 6 (structure, agents, skills, standards, incoming, 3gpp-crawler) |
+| Skills | **8** (+research, +deep-spec-verify) |
+| Includes | 6 (structure, agents, skills, standards, incoming, speckit) |
 | Quality Score | **98/100 (A)** — 0 ошибок FM, 0 битых ссылок, 94.6% reviewed |
-| Wiki | 130 стр. (+7 index), 100% reviewed |
+| Wiki | **131 стр. (+7 index)**, 100% reviewed |
 | Битых ссылок | 0 |
 | Сирот | 1 (`telcoai_3gpp_search`) |
 | Specifications PDF | 74 (+ 20 R16/R17 .docx) |
-| specs-extracted | 78 TXT + 86 MD + 73 JSON |
+| specs-extracted | 78 TXT + 86 MD + 73 JSON + **6 новых DOCX (24.008/24.501/38.306/36.306/44.018/44.060/38.101-5)** |
+| !INCOMING specs | **13 спецификаций** (включая 38.101-1/2/5, 44.018, 44.060) |
 | Torch CUDA | ✅ RTX 3060 (12 GB), 2.4-4.2× CPU |
 | .venv (uv sync) | ✅ docling + torch (CUDA) + httpx + PyPDF2 + rich |
 | _pipeline/ (speckit) | ✅ 10 модулей, 5 CLI-команд, GPU активен |
-| 3gpp-crawler | 🗑️ Декомиссия выполнена (2026-06-14) |
-| Git | ✅ 6 коммитов |
+| Spec Registry | 229 спецификаций, 14 категорий, `registry suggest/update` CLI |
+| _download_spec.py | ZIP-fallback при DOCX 403 (v4.2.2) |
+| Skill Priority | Проектные скиллы (`.claude/skills/`) > глобальные (`.claude/`) |
+| First run checklist | Core-only state после clone, проверка Python/FTP/API |
+| Git | ✅ 9 коммитов |
 | .speckit/ | ✅ Кэш метаданных (бывш. .3gpp-crawler) |
 | GitHook (PostToolUse) | ✅ Напоминание /lint |
 | Frontmatter validator | 0 ошибок, 58 warnings (yaml.safe_load) |
 | Graphify | Граф 7,723 узла, 19,947 рёбер, 396 сообществ, 102 оркестрационных ребра |
-| Беклог | 57/62 задач завершено (0 P0, 0 P1, 0 P2, 3 P3, 2 P4) |
+| **deep-spec-verify** | ✅ Новый скилл + `verify_spec_claims.py` (универсальная grep-верификация) |
+| **UECapabilityInformation** | ✅ Статья 970 строк, 23/23 band'ов верифицированы, 0 фабрикаций |
+| Беклог | 67/72 задач завершено (0 P0, 0 P1, 0 P2, 3 P3, 2 P4) |
 
 ### ▶️ Next Up
 
 | Порядок | Задача | Почему |
 |---|---|---|
 | **1** | P3-5.1: Docling — 1 оставшийся PDF | 15 мин, закрыть P3-5 на 100% |
-| **2** | P2-10: Core vs Data — логическое разделение | Фаза 2: .gitignore-стратегия |
-| **3** | P4-1: Стандартизация имён спецификаций | Оценить необходимость |
+| **2** | P2-10: Phase 4 — Data-стратегия (Git LFS / backup) | Будущее: стратегия хранения Data |
+| **3** | Перенести !INCOMING спеки в specs-extracted/ | 13 спеков в !INCOMING, нужно в постоянное хранилище |
+| **4** | P4-1: Стандартизация имён спецификаций | Оценить необходимость |
 
 ---
 
@@ -540,6 +546,16 @@ pie title Активные задачи (6)
 | 55 | 🟢 | Research-пайплайн: operator_icon_display_pipeline.md, R1-R4, Reviewer | 14 июн | research-test |
 | 56 | 🟢 | .spec-registry.md: 99 спецификаций, Researcher v2 (spec-first priority) | 14 июн | spec-registry |
 | 57 | 🟢 | registry suggest/update CLI, 68 названий из WhatTheSpec API | 14 июн | registry-cli |
+| 58 | 🟡 | v4.2.2 — ZIP-fallback (DOCX 403), skill priority, first-run checklist | 15 июн | notebook-fixes |
+| 59 | 🟡 | v4.2.2 — docs: venv explicit path in all speckit commands | 16 июн | notebook-docs |
+| 60 | 🟢 | Реестр спецификаций: эталонное расширение 80 → 229 спецификаций | 16 июн | notebook-registry |
+| 61 | 🟡 | UECapabilityInformation: статья 970 строк (RRC/NAS, 2G–5G, все RAT) | 20 июн | ue-capability-article |
+| 62 | 🟡 | deep-spec-verify: универсальный скилл + `verify_spec_claims.py` (grep-верификация) | 20 июн | deep-spec-verify |
+| 63 | 🟢 | Докачка 7 спецификаций: 24.008, 24.501, 38.306, 36.306, 44.018, 44.060, 38.101-5 | 20 июн | spec-download |
+| 64 | 🟡 | Band-верификация: 23/23 NR band'ов подтверждены grep'ом (включая NTN n254) | 20 июн | band-verification |
+| 65 | 🟡 | AI-судья deep-spec-verify: 0 фабрикаций, 38 false-positives проанализированы | 20 июн | ai-judge |
+| 66 | 🟡 | Тройное ревью статьи UECapabilityInformation (Reviewer → Deep Spec → AI Judge) | 20 июн | triple-review |
+| 67 | 🟢 | BACKLOG v4: +7 задач, обновление системного среза, хронология | 20 июн | backlog-update |
 
 </details>
 
@@ -573,7 +589,18 @@ pie title Активные задачи (6)
 | 14 июн 15:00 | orchestration | R1-R4: 7 рёбер, /lint консолидация, Agent Orchestration Map + Graph Analysis | Граф доказал исправления |
 | 14 июн 15:30 | core-vs-data-p2 | P2-10 Phase 2: .gitignore (Core 234 tracked, Data excluded), 5 диаграмм по графу | Структура зафиксирована |
 | 14 июн 16:00 | backup-sync | backup_data.py + sync_data.py + README, тест: 376 файлов → 53 MB zip | Data-инфраструктура |
-| 14 июн 16:20 | spec-registry | .spec-registry.md (99 specs, 14 cat), Researcher v2 (spec-first), registry suggest CLI | **Эта сессия** |
+| 14 июн 16:20 | spec-registry | .spec-registry.md (99 specs, 14 cat), Researcher v2 (spec-first), registry suggest CLI | Реестр v1 |
+| 15 июн 16:30 | notebook-fixes | ZIP-fallback (DOCX 403), skill priority, first-run checklist | **v4.2.2 fixes** |
+| 16 июн 13:00 | notebook-docs | venv explicit paths, spec registry 80→229 | v4.2.2 docs + registry v2 |
+| 20 июн 13:00 | ue-capability | Статья UECapabilityInformation (970 строк, 2G–5G, все RAT) | Материал для парсера |
+| 20 июн 14:30 | deep-review-1 | Ревью #1: 10 исправлений (DER→PER, MAC/PDCP/Phy переписаны) | Техническая точность |
+| 20 июн 15:00 | deep-review-2 | Ревью #2: 5 фабрикаций исправлено (GERAN CS TLV+V ≠ CSN.1, секции 24.301) | 0 фабрикаций |
+| 20 июн 15:30 | deep-review-3 | Ревью #3: побайтовая верификация через grep по 4 спекам | 0 фабрикаций |
+| 20 июн 16:00 | deep-spec-verify | Создан универсальный скилл + `verify_spec_claims.py` (grep-based, доменно-независим) | Новый инструмент |
+| 20 июн 16:30 | spec-download | Докачка 7 спецификаций (24.008, 24.501, 38.306, 36.306, 44.018, 44.060, 38.101-5) | +7 спеков |
+| 20 июн 17:00 | band-verify | Band-верификация: 23/23 NR band'ов grep'ом (включая n254 через 38.101-5) | 100% band'ов |
+| 20 июн 17:30 | ai-judge | AI-судья: анализ 38 NOT_FOUND — все false positives, 0 фабрикаций | Статья чиста |
+| 20 июн 18:00 | backlog-v4 | BACKLOG: +7 задач, системный срез, хронология | **Эта сессия** |
 
 ---
 
@@ -590,4 +617,4 @@ pie title Активные задачи (6)
 
 ---
 
-*Беклог актуален на 2026-06-14 16:30. 57 задач завершено. 5 активных (0 P2, 3 P3, 2 P4).*
+*Беклог актуален на 2026-06-20. 67 задач завершено. 5 активных (0 P2, 3 P3, 2 P4). Создан универсальный скилл deep-spec-verify. Статья UECapabilityInformation: 970 строк, 23/23 band'ов, 0 фабрикаций, 9.5/10.*
